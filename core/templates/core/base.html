@@ -1,16 +1,18 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Amplitone — Nocturnal Audio Utility</title>
     <link rel="stylesheet" href="{% static 'core/css/amplitone.css' %}">
+    <link rel="icon" type="image/png" href="{% static 'core/images/favicon.png' %}">
     <script src="https://unpkg.com/htmx.org@1.9.12"></script>
 </head>
-<body class="{% if not is_user_authenticated %}is-guest{% endif %}"
-      hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
-      data-csrf-token="{{ csrf_token }}">
+
+<body class="{% if not is_user_authenticated %}is-guest{% endif %}" hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+    data-csrf-token="{{ csrf_token }}">
 
     <!-- Floating Toast Notification Bar (HTMX + Self-Deleting DOM List) -->
     {% include 'core/components/toast_bar.html' %}
@@ -26,7 +28,7 @@
     <!-- Section 1: Main Body (Receives HTMX HTML Fragments) -->
     <main id="main-content" class="main-body">
         {% if content_template %}
-            {% include content_template %}
+        {% include content_template %}
         {% endif %}
     </main>
 
@@ -38,5 +40,5 @@
 
     <script src="{% static 'core/js/animations.js' %}"></script>
 </body>
-</html>
 
+</html>
