@@ -1,0 +1,60 @@
+<section class="editorial-split" data-animate="subtle">
+    <div>
+        <span class="kicker-label">Admin Only / Artist CRUD</span>
+        <h1 class="detail-title">
+            {% if is_edit %}Edit {{ artist.name }}{% else %}New Artist &amp; Account{% endif %}
+        </h1>
+        <p class="hero-lead">
+            {% if is_edit %}
+                Update this artist's biography, square portrait, or linked account email.
+            {% else %}
+                Provisions a dedicated Django User account alongside the Artist's public profile.
+            {% endif %}
+        </p>
+    </div>
+
+    <div class="form-panel">
+        {% if form.non_field_errors %}
+        <ul class="form-errors" style="margin-bottom: 1rem;">
+            {% for err in form.non_field_errors %}<li>{{ err }}</li>{% endfor %}
+        </ul>
+        {% endif %}
+
+        <form method="post"
+              enctype="multipart/form-data"
+              action="{% if is_edit %}{% url 'artists:update' artist.pk %}{% else %}{% url 'artists:create' %}{% endif %}"
+              hx-post="{% if is_edit %}{% url 'artists:update' artist.pk %}{% else %}{% url 'artists:create' %}{% endif %}"
+              hx-encoding="multipart/form-data"
+              hx-target="#main-content"
+              hx-push-url="true">
+            {% csrf_token %}
+
+            {% for field in form %}
+            <div class="form-group">
+                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                {{ field }}
+                {% if field.help_text %}
+                <span class="form-help">{{ field.help_text }}</span>
+                {% endif %}
+                {% if field.errors %}
+                <ul class="form-errors">
+                    {% for error in field.errors %}<li>{{ error }}</li>{% endfor %}
+                </ul>
+                {% endif %}
+            </div>
+            {% endfor %}
+
+            <div class="form-actions">
+                <button type="submit" class="btn-primary">
+                    {% if is_edit %}Save Artist{% else %}Create Artist &amp; Account{% endif %}
+                </button>
+                <a href="{% url 'artists:manage' %}"
+                   hx-get="{% url 'artists:manage' %}"
+                   hx-target="#main-content"
+                   hx-push-url="true"
+                   class="btn-outline">Cancel</a>
+            </div>
+        </form>
+    </div>
+</section>
+

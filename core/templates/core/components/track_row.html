@@ -1,0 +1,106 @@
+<tr class="track-row" data-track-id="{{ track.pk }}" data-animate="subtle">
+    <td class="track-num-cell">
+        {% if is_user_authenticated %}
+        <button type="button"
+                class="track-play-inline-btn"
+                data-play-track
+                data-track-id="{{ track.pk }}"
+                data-title="{{ track.title }}"
+                data-artist="{{ track.album.artist.name }}"
+                data-duration="{{ track.duration_seconds }}"
+                data-audio-url="{% if track.audio_file %}{{ track.audio_file.url }}{% endif %}"
+                data-cover-url="{% if track.cover %}{{ track.cover.url }}{% elif track.album.cover %}{{ track.album.cover.url }}{% endif %}"
+                title="Play {{ track.title }}">
+            &#9654;
+        </button>
+        {% else %}
+        <span>{{ track.track_number|stringformat:"02d" }}</span>
+        {% endif %}
+    </td>
+    <td>
+        <div style="display: flex; align-items: center; gap: 0.75rem;">
+            {% if track.cover %}
+                <img src="{{ track.cover.url }}" alt="{{ track.title }}" style="width: 2.125rem; height: 2.125rem; object-fit: cover; border: var(--hairline) solid var(--border-hairline); flex-shrink: 0;">
+            {% elif track.album.cover %}
+                <img src="{{ track.album.cover.url }}" alt="{{ track.album.title }}" style="width: 2.125rem; height: 2.125rem; object-fit: cover; border: var(--hairline) solid var(--border-hairline); flex-shrink: 0;">
+            {% endif %}
+            <div class="track-main-info">
+                <span class="track-title-text">{{ track.title }}</span>
+                <a href="{% url 'artists:detail' track.album.artist.pk %}"
+                   hx-get="{% url 'artists:detail' track.album.artist.pk %}"
+                   hx-target="#main-content"
+                   hx-push-url="true"
+                   class="track-artist-sub">{{ track.album.artist.name }}</a>
+            </div>
+        </div>
+    </td>
+    <td>
+        <a href="{% url 'catalog:album_detail' track.album.pk %}"
+           hx-get="{% url 'catalog:album_detail' track.album.pk %}"
+           hx-target="#main-content"
+           hx-push-url="true"
+           style="color: var(--text-secondary); font-size: 0.8125rem;">
+            {{ track.album.title }}
+        </a>
+    </td>
+    <td style="color: var(--text-secondary); font-family: var(--font-mono); font-size: 0.75rem;">
+        {{ track.plays_count }}
+    </td>
+    <td style="color: var(--text-muted); font-family: var(--font-mono); font-size: 0.75rem;">
+        {{ track.formatted_duration }}
+    </td>
+    <td>
+        <div class="track-actions-cell">
+            {% if user.is_authenticated %}
+                {% if track.pk in liked_track_ids %}
+                    {% include 'library/partials/like_button.html' with track=track is_liked=True %}
+                {% else %}
+                    {% include 'library/partials/like_button.html' with track=track is_liked=False %}
+                {% endif %}
+
+                {% if user_playlists %}
+                <form method="post"
+                      action=""
+                      class="playlist-inline-form"
+                      onsubmit="if(!this.action){return false;}">
+                    {% csrf_token %}
+                    <input type="hidden" name="track_id" value="{{ track.pk }}">
+                    <select class="playlist-select-mini"
+                            aria-label="Add to playlist"
+                            onchange="if(this.value){ this.form.action=this.value; this.form.submit(); }">
+                        <option value="">+ Playlist</option>
+                        {% for pl in user_playlists %}
+                        <option value="{% url 'library:playlist_add_track' pl.pk %}">{{ pl.name }}</option>
+                        {% endfor %}
+                    </select>
+                </form>
+                {% endif %}
+
+                {% if playlist and is_owner %}
+                <form method="post"
+                      action="{% url 'library:playlist_remove_track' playlist.pk track.pk %}"
+                      hx-post="{% url 'library:playlist_remove_track' playlist.pk track.pk %}"
+                      hx-target="#main-content"
+                      style="display:inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn-outline btn-sm" title="Remove from playlist">Remove</button>
+                </form>
+                {% endif %}
+
+                {% if user.is_staff or user.is_superuser or track.album.artist.user_id == user.id %}
+                <a href="{% url 'catalog:track_update' track.pk %}"
+                   hx-get="{% url 'catalog:track_update' track.pk %}"
+                   hx-target="#main-content"
+                   hx-push-url="true"
+                   class="btn-outline btn-sm">Edit</a>
+                <a href="{% url 'catalog:track_delete' track.pk %}"
+                   hx-get="{% url 'catalog:track_delete' track.pk %}"
+                   hx-target="#main-content"
+                   hx-push-url="true"
+                   class="btn-outline btn-sm"
+                   style="color: var(--danger-red);">Del</a>
+                {% endif %}
+            {% endif %}
+        </div>
+    </td>
+</tr>

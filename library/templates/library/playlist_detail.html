@@ -1,0 +1,113 @@
+<section class="detail-header" data-animate="subtle">
+    <div class="detail-cover-box">
+        {% if playlist.cover %}
+            <img src="{{ playlist.cover.url }}" alt="{{ playlist.name }}">
+        {% else %}
+            <div class="media-artwork-fallback">
+                <span>{{ playlist.name }}</span>
+            </div>
+        {% endif %}
+    </div>
+
+    <div>
+        <span class="kicker-label">
+            {% if playlist.is_private %}Private Playlist{% else %}Curated Playlist{% endif %}
+            &middot; By @{{ playlist.owner.username }}
+        </span>
+        <h1 class="detail-title">{{ playlist.name }}</h1>
+        <p class="hero-lead" style="margin-bottom: 1.25rem;">
+            {{ playlist.description|default:"Curated sequence." }}
+        </p>
+
+        <div class="detail-toolbar">
+            {% if tracks %}
+            {% with first_track=tracks.0 %}
+            <button type="button"
+                    class="btn-primary"
+                    data-play-track
+                    data-track-id="{{ first_track.pk }}"
+                    data-title="{{ first_track.title }}"
+                    data-artist="{{ first_track.album.artist.name }}"
+                    data-duration="{{ first_track.duration_seconds }}"
+                    data-audio-url="{% if first_track.audio_file %}{{ first_track.audio_file.url }}{% endif %}"
+                    data-cover-url="{% if first_track.album.cover %}{{ first_track.album.cover.url }}{% endif %}">
+                &#9654; Play Sequence
+            </button>
+            {% endwith %}
+            {% endif %}
+
+            {% if is_owner %}
+            <a href="{% url 'library:playlist_update' playlist.pk %}"
+               hx-get="{% url 'library:playlist_update' playlist.pk %}"
+               hx-target="#main-content"
+               hx-push-url="true"
+               class="btn-outline">Edit Playlist</a>
+            <a href="{% url 'library:playlist_delete' playlist.pk %}"
+               hx-get="{% url 'library:playlist_delete' playlist.pk %}"
+               hx-target="#main-content"
+               hx-push-url="true"
+               class="btn-outline"
+               style="color: var(--danger-red);">Delete Playlist</a>
+            {% endif %}
+        </div>
+    </div>
+</section>
+
+{% if is_owner %}
+<section class="content-section" style="padding-top: 1.5rem; padding-bottom: 1.5rem;" data-animate="subtle">
+    <form method="post"
+          action="{% url 'library:playlist_add_track' playlist.pk %}"
+          hx-post="{% url 'library:playlist_add_track' playlist.pk %}"
+          hx-target="#main-content"
+          style="display: flex; align-items: center; gap: 0.75rem;">
+        {% csrf_token %}
+        <span class="kicker-label" style="margin: 0;">Add Track to Playlist:</span>
+        <select name="track_id"
+                class="playlist-select-mini"
+                style="height: 2.375rem; min-width: 18rem;"
+                required>
+            <option value="">Select a track from catalog...</option>
+            {% for catalog_track in all_catalog_tracks %}
+            <option value="{{ catalog_track.pk }}">
+                {{ catalog_track.title }} — {{ catalog_track.album.artist.name }} ({{ catalog_track.album.title }})
+            </option>
+            {% endfor %}
+        </select>
+        <button type="submit" class="btn-outline btn-sm" style="height: 2.375rem;">+ Add Track</button>
+    </form>
+</section>
+{% endif %}
+
+<section class="content-section" data-animate="subtle">
+    <div class="section-header">
+        <div>
+            <span class="kicker-label">Playlist Sequence</span>
+            <h2 class="section-title">Tracks ({{ tracks|length }})</h2>
+        </div>
+    </div>
+
+    <table class="track-table">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Title</th>
+                <th>Album</th>
+                <th>Plays</th>
+                <th>Time</th>
+                <th style="text-align: right;">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for track in tracks %}
+                {% include 'core/components/track_row.html' with track=track playlist=playlist is_owner=is_owner %}
+            {% empty %}
+            <tr>
+                <td colspan="6" style="color: var(--text-muted); padding: 1.5rem 0.75rem;">
+                    This playlist is currently empty. Add tracks above or from any tracklist.
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</section>
+

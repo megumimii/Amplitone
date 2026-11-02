@@ -1,0 +1,32 @@
+<section class="editorial-split" data-animate="subtle">
+    <div>
+        <span class="kicker-label" style="color: var(--danger-red);">Confirm Deletion / Irreversible</span>
+        <h1 class="detail-title">{{ object_name }}</h1>
+        <p class="hero-lead">{{ warning_note }}</p>
+    </div>
+
+    <div class="form-panel">
+        <span class="kicker-label">Security Confirmation</span>
+        <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">
+            You are about to permanently delete this <strong>{{ object_type }}</strong>.
+            Please confirm to proceed.
+        </p>
+
+        <form method="post"
+              action="{{ confirm_url }}"
+              hx-post="{{ confirm_url }}"
+              hx-target="#main-content"
+              hx-push-url="true">
+            {% csrf_token %}
+            <div class="form-actions">
+                <button type="submit" class="btn-danger">Confirm Delete</button>
+                <a href="{{ cancel_url }}"
+                   hx-get="{{ cancel_url }}"
+                   hx-target="#main-content"
+                   hx-push-url="true"
+                   class="btn-outline">Cancel</a>
+            </div>
+        </form>
+    </div>
+</section>
+

@@ -1,0 +1,44 @@
+<section class="content-section" data-animate="subtle">
+    <div class="section-header">
+        <div>
+            <span class="kicker-label">Manage / Tracks</span>
+            <h1 class="section-title">
+                {% if user.is_staff or user.is_superuser %}
+                    Manage Catalog Tracks
+                {% else %}
+                    My Tracks
+                {% endif %}
+            </h1>
+        </div>
+        <a href="{% url 'catalog:track_create' %}"
+           hx-get="{% url 'catalog:track_create' %}"
+           hx-target="#main-content"
+           hx-push-url="true"
+           class="btn-primary">+ Upload Track</a>
+    </div>
+
+    <!-- User Tracks Table -->
+    <table class="track-table">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Title</th>
+                <th>Album</th>
+                <th>Plays</th>
+                <th>Time</th>
+                <th style="text-align: right;">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for track in tracks %}
+                {% include 'core/components/track_row.html' with track=track %}
+            {% empty %}
+            <tr>
+                <td colspan="6" style="color: var(--text-muted); padding: 2.5rem 1rem; text-align: center;">
+                    You have not uploaded any tracks yet. Click <strong>+ Upload Track</strong> to publish your first recording.
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</section>

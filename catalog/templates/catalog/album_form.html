@@ -1,0 +1,60 @@
+<section class="editorial-split" data-animate="subtle">
+    <div>
+        <span class="kicker-label">Album CRUD</span>
+        <h1 class="detail-title">
+            {% if is_edit %}Edit {{ album.title }}{% else %}New Album Release{% endif %}
+        </h1>
+        <p class="hero-lead">
+            {% if not request.user.is_staff and not request.user.is_superuser %}
+            Release an album under your artist profile. Configure metadata, release date, and square cover artwork.
+            {% else %}
+            Configure album metadata, release date, artist attribution, and square cover artwork.
+            {% endif %}
+        </p>
+    </div>
+
+    <div class="form-panel">
+        {% if form.non_field_errors %}
+        <ul class="form-errors" style="margin-bottom: 1rem;">
+            {% for err in form.non_field_errors %}<li>{{ err }}</li>{% endfor %}
+        </ul>
+        {% endif %}
+
+        <form method="post"
+              enctype="multipart/form-data"
+              action="{% if is_edit %}{% url 'catalog:album_update' album.pk %}{% else %}{% url 'catalog:album_create' %}{% endif %}"
+              hx-post="{% if is_edit %}{% url 'catalog:album_update' album.pk %}{% else %}{% url 'catalog:album_create' %}{% endif %}"
+              hx-encoding="multipart/form-data"
+              hx-target="#main-content"
+              hx-push-url="true">
+            {% csrf_token %}
+
+            {% for field in form %}
+            <div class="form-group">
+                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                {{ field }}
+                {% if field.help_text %}
+                <span class="form-help">{{ field.help_text }}</span>
+                {% endif %}
+                {% if field.errors %}
+                <ul class="form-errors">
+                    {% for error in field.errors %}<li>{{ error }}</li>{% endfor %}
+                </ul>
+                {% endif %}
+            </div>
+            {% endfor %}
+
+            <div class="form-actions">
+                <button type="submit" class="btn-primary">
+                    {% if is_edit %}Update Album{% else %}Create Album{% endif %}
+                </button>
+                <a href="{% if is_edit %}{% url 'catalog:album_detail' album.pk %}{% else %}{% url 'catalog:album_list' %}{% endif %}"
+                   hx-get="{% if is_edit %}{% url 'catalog:album_detail' album.pk %}{% else %}{% url 'catalog:album_list' %}{% endif %}"
+                   hx-target="#main-content"
+                   hx-push-url="true"
+                   class="btn-outline">Cancel</a>
+            </div>
+        </form>
+    </div>
+</section>
+

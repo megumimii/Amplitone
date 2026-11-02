@@ -1,0 +1,56 @@
+<footer id="player-bar" class="bottom-player">
+    <!-- Persistent Audio Element -->
+    <audio id="amplitone-audio" preload="metadata"></audio>
+
+    <!-- Left: Currently Playing Track Info -->
+    <div class="player-now-playing">
+        <div id="player-thumb" class="player-thumb"></div>
+        <div class="player-track-meta">
+            <div id="player-title" class="player-track-title">No track selected</div>
+            <div id="player-artist" class="player-track-artist">Select a track to play</div>
+        </div>
+        <span id="player-now-liked" class="like-heart-btn" title="Like / Unlike" style="opacity: 0.3;" aria-hidden="true">&#9825;</span>
+    </div>
+
+    <!-- Center: Transport & Linear Progress Bar -->
+    <div class="player-center">
+        <div class="player-transport-buttons">
+            <button type="button" id="player-shuffle-btn" class="icon-btn" title="Shuffle">&#8644;</button>
+            <button type="button" id="player-prev-btn" class="icon-btn" title="Previous">&#9198;</button>
+            <button type="button" id="player-play-btn" class="transport-play-circle" title="Play / Pause">&#9654;</button>
+            <button type="button" id="player-next-btn" class="icon-btn" title="Next">&#9197;</button>
+            <button type="button" id="player-repeat-btn" class="icon-btn" title="Repeat">&#8635;</button>
+        </div>
+        <div class="player-Timeline-row">
+            <span id="player-current-time" class="player-time">0:00</span>
+            <input type="range"
+                   id="player-seek-input"
+                   class="player-range"
+                   min="0"
+                   max="100"
+                   value="0"
+                   style="--progress: 0%;"
+                   aria-label="Seek timeline">
+            <span id="player-total-time" class="player-time">0:00</span>
+        </div>
+    </div>
+
+    <!-- Right: Queue & Volume -->
+    <div class="player-right">
+        <a href="{% url 'library:recently_played' %}"
+           hx-get="{% url 'library:recently_played' %}"
+           hx-target="#main-content"
+           hx-push-url="true"
+           class="icon-btn"
+           title="Recently Played Queue">&#9776;</a>
+        <span style="color: var(--text-secondary); font-size: 0.8125rem;">&#128266;</span>
+        <input type="range"
+               id="player-volume-input"
+               class="player-range volume-range"
+               min="0"
+               max="100"
+               value="80"
+               style="--progress: 80%;"
+               aria-label="Volume">
+    </div>
+</footer>

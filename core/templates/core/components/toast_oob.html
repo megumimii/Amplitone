@@ -1,0 +1,8 @@
+{% if toast_items %}
+<ul id="toast-list" hx-swap-oob="beforeend">
+    {% for toast in toast_items %}
+        {% include 'core/components/toast_item.html' with toast=toast %}
+    {% endfor %}
+</ul>
+{% endif %}
+

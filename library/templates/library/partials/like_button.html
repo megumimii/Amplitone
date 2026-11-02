@@ -1,0 +1,14 @@
+<button type="button"
+        id="like-btn-{{ track.pk }}"
+        class="like-heart-btn {% if is_liked %}is-liked{% endif %}"
+        hx-post="{% url 'library:toggle_like' track.pk %}"
+        hx-target="#like-btn-{{ track.pk }}"
+        hx-swap="outerHTML"
+        title="{% if is_liked %}Unlike track{% else %}Like track{% endif %}">
+    {% if is_liked %}&#9829;{% else %}&#9825;{% endif %}
+</button>
+{% if oob_update %}
+<span id="sidebar-liked-count" class="sidebar-counter" hx-swap-oob="true">{{ sidebar_liked_count }}</span>
+{% include 'core/components/toast_oob.html' %}
+{% endif %}
+

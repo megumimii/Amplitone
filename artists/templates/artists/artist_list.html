@@ -1,0 +1,102 @@
+<section class="content-section" data-animate="subtle">
+    <div class="section-header">
+        <div>
+            <span class="kicker-label">Roster / Directory</span>
+            <h1 class="section-title">Artists</h1>
+        </div>
+        {% if user.is_staff or user.is_superuser %}
+        <div class="detail-toolbar">
+            <a href="{% url 'artists:create' %}"
+               hx-get="{% url 'artists:create' %}"
+               hx-target="#main-content"
+               hx-push-url="true"
+               class="btn-primary">+ Create Artist &amp; Account</a>
+        </div>
+        {% endif %}
+    </div>
+
+    <table class="track-table">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Artist</th>
+                <th>Account</th>
+                <th>Albums</th>
+                <th>Songs</th>
+                <th>Playlists</th>
+                <th style="text-align: right;">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for artist in artists %}
+            <tr class="track-row" data-animate="subtle">
+                <td class="track-num-cell">{{ forloop.counter|stringformat:"02d" }}</td>
+                <td>
+                    <div style="display: flex; align-items: center; gap: 0.75rem;">
+                        {% if artist.effective_image %}
+                            <img src="{{ artist.effective_image.url }}"
+                                 alt="{{ artist.name }}"
+                                 style="width: 2.25rem; height: 2.25rem; object-fit: cover; border: var(--hairline) solid var(--border-strong); flex-shrink: 0;">
+                        {% endif %}
+                        <div>
+                            <a href="{% url 'artists:detail' artist.pk %}"
+                               hx-get="{% url 'artists:detail' artist.pk %}"
+                               hx-target="#main-content"
+                               hx-push-url="true"
+                               class="track-title-text">{{ artist.name }}</a>
+                            {% if artist.bio %}
+                            <div class="track-artist-sub">{{ artist.bio|truncatechars:64 }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </td>
+                <td style="color: var(--text-secondary); font-family: var(--font-mono); font-size: 0.75rem;">
+                    @{{ artist.user.username }}
+                </td>
+                <td style="color: var(--text-secondary); font-family: var(--font-mono); font-size: 0.75rem;">
+                    {{ artist.albums_total|default:artist.albums.count }}
+                </td>
+                <td style="color: var(--text-secondary); font-family: var(--font-mono); font-size: 0.75rem;">
+                    {{ artist.tracks_total|default:0 }}
+                </td>
+                <td style="color: var(--text-secondary); font-family: var(--font-mono); font-size: 0.75rem;">
+                    {{ artist.playlists_total|default:0 }}
+                </td>
+                <td>
+                    <div class="track-actions-cell">
+                        <a href="{% url 'artists:detail' artist.pk %}"
+                           hx-get="{% url 'artists:detail' artist.pk %}"
+                           hx-target="#main-content"
+                           hx-push-url="true"
+                           class="btn-primary btn-sm">View Artist</a>
+                        {% if user.is_staff or user.is_superuser %}
+                        <a href="{% url 'artists:update' artist.pk %}"
+                           hx-get="{% url 'artists:update' artist.pk %}"
+                           hx-target="#main-content"
+                           hx-push-url="true"
+                           class="btn-outline btn-sm">Edit</a>
+                        <a href="{% url 'catalog:album_create' %}?artist={{ artist.pk }}"
+                           hx-get="{% url 'catalog:album_create' %}?artist={{ artist.pk }}"
+                           hx-target="#main-content"
+                           hx-push-url="true"
+                           class="btn-outline btn-sm">+ Album</a>
+                        <a href="{% url 'artists:delete' artist.pk %}"
+                           hx-get="{% url 'artists:delete' artist.pk %}"
+                           hx-target="#main-content"
+                           hx-push-url="true"
+                           class="btn-outline btn-sm"
+                           style="color: var(--danger-red);">Delete</a>
+                        {% endif %}
+                    </div>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="7" style="color: var(--text-muted); padding: 1.5rem 0.75rem;">
+                    No artists registered yet.
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</section>

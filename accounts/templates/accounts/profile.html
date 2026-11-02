@@ -1,0 +1,99 @@
+<section class="editorial-split" data-animate="subtle">
+    <div>
+        <div class="detail-cover-box" style="margin-bottom: 1.5rem;">
+            {% if user_avatar_url %}
+                <img src="{{ user_avatar_url }}" alt="{{ user.username }}">
+            {% else %}
+                <div class="media-artwork-fallback">
+                    <span style="font-size: 2rem; font-weight: 700;">{{ user.username|slice:":2"|upper }}</span>
+                </div>
+            {% endif %}
+        </div>
+
+        <span class="kicker-label">Listener Profile</span>
+        <h1 class="detail-title">@{{ user.username }}</h1>
+        <p class="hero-lead">
+            Role:
+            {% if user.is_superuser or user.is_staff %}
+                <strong style="color: var(--accent-orange);">Administrator</strong>
+            {% elif user.artist_profile %}
+                <strong style="color: var(--accent-orange);">Verified Artist ({{ user.artist_profile.name }})</strong>
+            {% else %}
+                <strong>Standard Listener</strong>
+            {% endif %}
+        </p>
+
+        <div class="detail-meta-row">
+            <span><strong>{{ sidebar_playlists|length }}</strong> Playlists</span>
+            <span>&middot;</span>
+            <span><strong>{{ sidebar_liked_count }}</strong> Liked Songs</span>
+        </div>
+
+        {% if user.is_staff or user.is_superuser %}
+        <div class="detail-toolbar">
+            <a href="{% url 'artists:manage' %}"
+               hx-get="{% url 'artists:manage' %}"
+               hx-target="#main-content"
+               hx-push-url="true"
+               class="btn-primary">Admin Artist CRUD &rarr;</a>
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="form-panel" data-animate="subtle">
+        <span class="kicker-label">Account Settings</span>
+        <h2 class="section-title" style="margin-bottom: 1.5rem;">Update Profile</h2>
+
+        {% if form.non_field_errors %}
+        <ul class="form-errors" style="margin-bottom: 1rem;">
+            {% for err in form.non_field_errors %}<li>{{ err }}</li>{% endfor %}
+        </ul>
+        {% endif %}
+
+        <form method="post"
+              enctype="multipart/form-data"
+              action="{% url 'accounts:profile' %}"
+              hx-post="{% url 'accounts:profile' %}"
+              hx-encoding="multipart/form-data"
+              hx-target="#main-content">
+            {% csrf_token %}
+
+            {% for field in form %}
+            <div class="form-group">
+                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                {{ field }}
+                {% if field.help_text %}
+                <span class="form-help">{{ field.help_text }}</span>
+                {% endif %}
+                {% if field.errors %}
+                <ul class="form-errors">
+                    {% for error in field.errors %}<li>{{ error }}</li>{% endfor %}
+                </ul>
+                {% endif %}
+            </div>
+            {% endfor %}
+
+            <div class="form-actions">
+                <button type="submit" class="btn-primary">Save Changes</button>
+            </div>
+        </form>
+    </div>
+</section>
+
+{% if request.headers.HX_Request %}
+<a id="navbar-avatar"
+   href="{% url 'accounts:profile' %}"
+   hx-get="{% url 'accounts:profile' %}"
+   hx-target="#main-content"
+   hx-push-url="true"
+   hx-swap-oob="true"
+   class="avatar-circle"
+   title="Profile ({{ user.username }})">
+    {% if user_avatar_url %}
+        <img src="{{ user_avatar_url }}" alt="{{ user.username }}">
+    {% else %}
+        {{ user.username|slice:":2"|upper }}
+    {% endif %}
+</a>
+{% endif %}
+

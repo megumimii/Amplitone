@@ -1,0 +1,42 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Amplitone — Nocturnal Audio Utility</title>
+    <link rel="stylesheet" href="{% static 'core/css/amplitone.css' %}">
+    <script src="https://unpkg.com/htmx.org@1.9.12"></script>
+</head>
+<body class="{% if not is_user_authenticated %}is-guest{% endif %}"
+      hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+      data-csrf-token="{{ csrf_token }}">
+
+    <!-- Floating Toast Notification Bar (HTMX + Self-Deleting DOM List) -->
+    {% include 'core/components/toast_bar.html' %}
+
+    <!-- Section 2: Top Navbar (Search, Auth, Logo, History) -->
+    {% include 'core/components/navbar.html' %}
+
+    {% if is_user_authenticated %}
+    <!-- Section 3: Small Left Sidebar (Collection, Manage, Playlists) -->
+    {% include 'core/components/sidebar.html' %}
+    {% endif %}
+
+    <!-- Section 1: Main Body (Receives HTMX HTML Fragments) -->
+    <main id="main-content" class="main-body">
+        {% if content_template %}
+            {% include content_template %}
+        {% endif %}
+    </main>
+
+    {% if is_user_authenticated %}
+    <!-- Section 4: Persistent Bottom Media Controller -->
+    {% include 'core/components/player_bar.html' %}
+    <script src="{% static 'core/js/player.js' %}"></script>
+    {% endif %}
+
+    <script src="{% static 'core/js/animations.js' %}"></script>
+</body>
+</html>
+

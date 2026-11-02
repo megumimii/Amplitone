@@ -1,0 +1,33 @@
+<section class="content-section" data-animate="subtle">
+    <div class="section-header">
+        <div>
+            <span class="kicker-label">Saved Collection</span>
+            <h1 class="section-title">Liked Songs ({{ tracks|length }})</h1>
+        </div>
+    </div>
+
+    <table class="track-table">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Title</th>
+                <th>Album</th>
+                <th>Plays</th>
+                <th>Time</th>
+                <th style="text-align: right;">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for track in tracks %}
+                {% include 'core/components/track_row.html' with track=track %}
+            {% empty %}
+            <tr>
+                <td colspan="6" style="color: var(--text-muted); padding: 1.5rem 0.75rem;">
+                    You haven't liked any tracks yet. Click the heart icon on any track to save it here.
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</section>
+

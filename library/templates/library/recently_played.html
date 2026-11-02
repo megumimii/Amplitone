@@ -1,0 +1,33 @@
+<section class="content-section" data-animate="subtle">
+    <div class="section-header">
+        <div>
+            <span class="kicker-label">Listening History</span>
+            <h1 class="section-title">Recently Played</h1>
+        </div>
+    </div>
+
+    <table class="track-table">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Title</th>
+                <th>Album</th>
+                <th>Plays</th>
+                <th>Time</th>
+                <th style="text-align: right;">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for track in tracks %}
+                {% include 'core/components/track_row.html' with track=track %}
+            {% empty %}
+            <tr>
+                <td colspan="6" style="color: var(--text-muted); padding: 1.5rem 0.75rem;">
+                    No recent playback history yet. Click play on any track to start listening.
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</section>
+

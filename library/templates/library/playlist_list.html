@@ -1,0 +1,48 @@
+<section class="content-section" data-animate="subtle">
+    <div class="section-header">
+        <div>
+            <span class="kicker-label">Personal Archive</span>
+            <h1 class="section-title">My Playlists</h1>
+        </div>
+        <a href="{% url 'library:playlist_create' %}"
+           hx-get="{% url 'library:playlist_create' %}"
+           hx-target="#main-content"
+           hx-push-url="true"
+           class="btn-primary">+ New Playlist</a>
+    </div>
+
+    <div class="media-grid">
+        {% for pl in playlists %}
+        <article class="media-tile" data-animate="subtle">
+            <a href="{% url 'library:playlist_detail' pl.pk %}"
+               hx-get="{% url 'library:playlist_detail' pl.pk %}"
+               hx-target="#main-content"
+               hx-push-url="true"
+               class="media-artwork-box">
+                <span class="corner-index">{{ forloop.counter|stringformat:"02d" }}</span>
+                {% if pl.cover %}
+                    <img src="{{ pl.cover.url }}" alt="{{ pl.name }}">
+                {% else %}
+                    <div class="media-artwork-fallback">
+                        <span>{{ pl.name }}</span>
+                    </div>
+                {% endif %}
+            </a>
+            <div>
+                <a href="{% url 'library:playlist_detail' pl.pk %}"
+                   hx-get="{% url 'library:playlist_detail' pl.pk %}"
+                   hx-target="#main-content"
+                   hx-push-url="true"
+                   class="media-tile-title">{{ pl.name }}</a>
+                <div class="media-tile-sub">
+                    {% if pl.is_private %}Private{% else %}Public{% endif %}
+                    &middot; {{ pl.tracks.count }} track(s)
+                </div>
+            </div>
+        </article>
+        {% empty %}
+        <p style="color: var(--text-secondary);">You have not created any playlists yet.</p>
+        {% endfor %}
+    </div>
+</section>
+

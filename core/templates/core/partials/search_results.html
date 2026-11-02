@@ -1,0 +1,109 @@
+<section class="content-section" data-animate="subtle">
+    <div class="section-header">
+        <div>
+            <span class="kicker-label">Catalog Search</span>
+            <h1 class="section-title">
+                {% if query %}Results for "{{ query }}"{% else %}Browse All Frequencies{% endif %}
+            </h1>
+        </div>
+    </div>
+
+    <!-- Matching Artists -->
+    <div style="margin-bottom: 2.5rem;">
+        <span class="kicker-label">Artists ({{ artists|length }})</span>
+        <div class="media-grid">
+            {% for artist in artists %}
+            <article class="media-tile" data-animate="subtle">
+                <a href="{% url 'artists:detail' artist.pk %}"
+                   hx-get="{% url 'artists:detail' artist.pk %}"
+                   hx-target="#main-content"
+                   hx-push-url="true"
+                   class="media-artwork-box">
+                    <span class="corner-index">{{ forloop.counter|stringformat:"02d" }}</span>
+                    {% if artist.image %}
+                        <img src="{{ artist.image.url }}" alt="{{ artist.name }}">
+                    {% else %}
+                        <div class="media-artwork-fallback">
+                            <span>{{ artist.name }}</span>
+                        </div>
+                    {% endif %}
+                </a>
+                <div>
+                    <a href="{% url 'artists:detail' artist.pk %}"
+                       hx-get="{% url 'artists:detail' artist.pk %}"
+                       hx-target="#main-content"
+                       hx-push-url="true"
+                       class="media-tile-title">{{ artist.name }}</a>
+                    <div class="media-tile-sub">Artist &middot; {{ artist.albums.count }} album(s)</div>
+                </div>
+            </article>
+            {% empty %}
+            <p style="color: var(--text-muted);">No matching artists found.</p>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Matching Albums -->
+    <div style="margin-bottom: 2.5rem;">
+        <span class="kicker-label">Albums ({{ albums|length }})</span>
+        <div class="media-grid">
+            {% for album in albums %}
+            <article class="media-tile" data-animate="subtle">
+                <a href="{% url 'catalog:album_detail' album.pk %}"
+                   hx-get="{% url 'catalog:album_detail' album.pk %}"
+                   hx-target="#main-content"
+                   hx-push-url="true"
+                   class="media-artwork-box">
+                    <span class="corner-index">{{ forloop.counter|stringformat:"02d" }}</span>
+                    {% if album.cover %}
+                        <img src="{{ album.cover.url }}" alt="{{ album.title }}">
+                    {% else %}
+                        <div class="media-artwork-fallback">
+                            <span>{{ album.title }}</span>
+                        </div>
+                    {% endif %}
+                </a>
+                <div>
+                    <a href="{% url 'catalog:album_detail' album.pk %}"
+                       hx-get="{% url 'catalog:album_detail' album.pk %}"
+                       hx-target="#main-content"
+                       hx-push-url="true"
+                       class="media-tile-title">{{ album.title }}</a>
+                    <div class="media-tile-sub">{{ album.artist.name }}</div>
+                </div>
+            </article>
+            {% empty %}
+            <p style="color: var(--text-muted);">No matching albums found.</p>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Matching Tracks -->
+    <div>
+        <span class="kicker-label">Tracks ({{ tracks|length }})</span>
+        <table class="track-table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Title</th>
+                    <th>Album</th>
+                    <th>Plays</th>
+                    <th>Time</th>
+                    <th style="text-align: right;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for track in tracks %}
+                    {% include 'core/components/track_row.html' with track=track %}
+                {% empty %}
+                <tr>
+                    <td colspan="6" style="color: var(--text-muted); padding: 1.5rem 0.75rem;">
+                        No matching tracks found.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+

@@ -1,0 +1,169 @@
+<!-- 1. Artist Details Header -->
+<section class="detail-header" data-animate="subtle">
+    <div class="detail-cover-box">
+        {% if artist.effective_image %}
+        <img src="{{ artist.effective_image.url }}" alt="{{ artist.name }}">
+        {% else %}
+        <div class="media-artwork-fallback">
+            <span>{{ artist.name }}</span>
+        </div>
+        {% endif %}
+    </div>
+
+    <div>
+        <span class="kicker-label">
+            Artist Profile &middot; Account @{{ artist.user.username }}
+            {% if user.is_staff or user.is_superuser %}
+            ({{ artist.user.email|default:"no email" }})
+            {% endif %}
+        </span>
+        <h1 class="detail-title">{{ artist.name }}</h1>
+        <p class="hero-lead" style="margin-bottom: 1rem;">
+            {{ artist.bio|default:"No artist biography added yet." }}
+        </p>
+
+        <div class="detail-meta-row">
+            <span><strong>{{ albums|length }}</strong> Album(s)</span>
+            <span>&middot;</span>
+            <span><strong>{{ tracks|length }}</strong> Song(s)</span>
+            <span>&middot;</span>
+            <span><strong>{{ artist_playlists|length }}</strong> Playlist(s)</span>
+        </div>
+
+        <div class="detail-toolbar">
+            {% if can_manage_artist_catalog %}
+            <a href="{% url 'catalog:album_create' %}?artist={{ artist.pk }}"
+                hx-get="{% url 'catalog:album_create' %}?artist={{ artist.pk }}" hx-target="#main-content"
+                hx-push-url="true" class="btn-primary">+ Add Album</a>
+            {% endif %}
+
+            {% if user.is_staff or user.is_superuser %}
+            <a href="{% url 'artists:update' artist.pk %}" hx-get="{% url 'artists:update' artist.pk %}"
+                hx-target="#main-content" hx-push-url="true" class="btn-outline">Edit Artist</a>
+            <a href="{% url 'artists:delete' artist.pk %}" hx-get="{% url 'artists:delete' artist.pk %}"
+                hx-target="#main-content" hx-push-url="true" class="btn-outline"
+                style="color: var(--danger-red);">Delete Artist</a>
+            {% endif %}
+        </div>
+    </div>
+</section>
+
+<!-- 2. Artist's Albums -->
+<section class="content-section" data-animate="subtle">
+    <div class="section-header">
+        <div>
+            <span class="kicker-label">Discography</span>
+            <h2 class="section-title">Albums ({{ albums|length }})</h2>
+        </div>
+    </div>
+
+    <div class="media-grid">
+        {% for album in albums %}
+        <article class="media-tile" data-animate="subtle">
+            <div class="media-artwork-box">
+                <span class="corner-index">{{ forloop.counter|stringformat:"02d" }}</span>
+                <a href="{% url 'catalog:album_detail' album.pk %}" hx-get="{% url 'catalog:album_detail' album.pk %}"
+                    hx-target="#main-content" hx-push-url="true">
+                    {% if album.cover %}
+                    <img src="{{ album.cover.url }}" alt="{{ album.title }}">
+                    {% else %}
+                    <div class="media-artwork-fallback">
+                        <span>{{ album.title }}</span>
+                    </div>
+                    {% endif %}
+                </a>
+            </div>
+            <div>
+                <a href="{% url 'catalog:album_detail' album.pk %}" hx-get="{% url 'catalog:album_detail' album.pk %}"
+                    hx-target="#main-content" hx-push-url="true" class="media-tile-title">{{ album.title }}</a>
+                <div class="media-tile-sub">{{ album.release_date|date:"Y" }} &middot; {{ album.tracks.count }} tracks
+                </div>
+                {% if can_manage_artist_catalog %}
+                <div style="display: flex; gap: 0.375rem; margin-top: 0.5rem;">
+                    <a href="{% url 'catalog:album_update' album.pk %}"
+                        hx-get="{% url 'catalog:album_update' album.pk %}" hx-target="#main-content" hx-push-url="true"
+                        class="btn-outline btn-sm">Edit</a>
+                    <a href="{% url 'catalog:album_delete' album.pk %}"
+                        hx-get="{% url 'catalog:album_delete' album.pk %}" hx-target="#main-content" hx-push-url="true"
+                        class="btn-outline btn-sm" style="color: var(--danger-red);">Delete</a>
+                </div>
+                {% endif %}
+            </div>
+        </article>
+        {% empty %}
+        <p style="color: var(--text-secondary);">No albums released by this artist yet.</p>
+        {% endfor %}
+    </div>
+</section>
+
+<!-- 3. Artist's Songs / Tracks -->
+<section class="content-section" data-animate="subtle">
+    <div class="section-header">
+        <div>
+            <span class="kicker-label">Catalog Recordings</span>
+            <h2 class="section-title">Songs by {{ artist.name }} ({{ tracks|length }})</h2>
+        </div>
+    </div>
+
+    <table class="track-table">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Title</th>
+                <th>Album</th>
+                <th>Plays</th>
+                <th>Time</th>
+                <th style="text-align: right;">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for track in tracks %}
+            {% include 'core/components/track_row.html' with track=track %}
+            {% empty %}
+            <tr>
+                <td colspan="6" style="color: var(--text-muted); padding: 1.5rem 0.75rem;">
+                    No songs uploaded for this artist yet.
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</section>
+
+<!-- 4. Artist's Playlists -->
+<section class="content-section" data-animate="subtle">
+    <div class="section-header">
+        <div>
+            <span class="kicker-label">Curated Collections</span>
+            <h2 class="section-title">Playlists by {{ artist.name }} ({{ artist_playlists|length }})</h2>
+        </div>
+    </div>
+
+    <div class="media-grid">
+        {% for pl in artist_playlists %}
+        <article class="media-tile" data-animate="subtle">
+            <a href="{% url 'library:playlist_detail' pl.pk %}" hx-get="{% url 'library:playlist_detail' pl.pk %}"
+                hx-target="#main-content" hx-push-url="true" class="media-artwork-box">
+                <span class="corner-index">{{ forloop.counter|stringformat:"02d" }}</span>
+                {% if pl.cover %}
+                <img src="{{ pl.cover.url }}" alt="{{ pl.name }}">
+                {% else %}
+                <div class="media-artwork-fallback">
+                    <span>{{ pl.name }}</span>
+                </div>
+                {% endif %}
+            </a>
+            <div>
+                <a href="{% url 'library:playlist_detail' pl.pk %}" hx-get="{% url 'library:playlist_detail' pl.pk %}"
+                    hx-target="#main-content" hx-push-url="true" class="media-tile-title">{{ pl.name }}</a>
+                <div class="media-tile-sub">
+                    {% if pl.is_private %}Private{% else %}Public{% endif %}
+                    &middot; {{ pl.tracks.count }} track(s)
+                </div>
+            </div>
+        </article>
+        {% empty %}
+        <p style="color: var(--text-secondary);">No playlists created by this artist yet.</p>
+        {% endfor %}
+    </div>
+</section>

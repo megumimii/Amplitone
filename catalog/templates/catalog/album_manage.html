@@ -1,0 +1,103 @@
+<section class="content-section" data-animate="subtle">
+    <div class="section-header">
+        <div>
+            <span class="kicker-label">Manage / Albums</span>
+            <h1 class="section-title">
+                {% if user.is_staff or user.is_superuser %}
+                    Manage Catalog Albums
+                {% else %}
+                    My Albums
+                {% endif %}
+            </h1>
+        </div>
+        <a href="{% url 'catalog:album_create' %}"
+           hx-get="{% url 'catalog:album_create' %}"
+           hx-target="#main-content"
+           hx-push-url="true"
+           class="btn-primary">+ New Album</a>
+    </div>
+
+    <!-- Album Management Table -->
+    <table class="track-table">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Album</th>
+                <th>Artist</th>
+                <th>Release Date</th>
+                <th>Tracks</th>
+                <th style="text-align: right;">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for album in albums %}
+            <tr class="track-row" data-animate="subtle">
+                <td class="track-num-cell">{{ forloop.counter|stringformat:"02d" }}</td>
+                <td>
+                    <div style="display: flex; align-items: center; gap: 0.75rem;">
+                        {% if album.cover %}
+                            <img src="{{ album.cover.url }}"
+                                 alt="{{ album.title }}"
+                                 style="width: 2.375rem; height: 2.375rem; object-fit: cover; border: var(--hairline) solid var(--border-strong); flex-shrink: 0;">
+                        {% else %}
+                            <div class="media-artwork-fallback" style="width: 2.375rem; height: 2.375rem; font-size: 0.6875rem; display: inline-flex; align-items: center; justify-content: center;">
+                                <span>LP</span>
+                            </div>
+                        {% endif %}
+                        <div>
+                            <a href="{% url 'catalog:album_detail' album.pk %}"
+                               hx-get="{% url 'catalog:album_detail' album.pk %}"
+                               hx-target="#main-content"
+                               hx-push-url="true"
+                               class="track-title-text">{{ album.title }}</a>
+                        </div>
+                    </div>
+                </td>
+                <td style="color: var(--text-secondary); font-size: 0.8125rem;">
+                    <a href="{% url 'artists:detail' album.artist.pk %}"
+                       hx-get="{% url 'artists:detail' album.artist.pk %}"
+                       hx-target="#main-content"
+                       hx-push-url="true">{{ album.artist.name }}</a>
+                </td>
+                <td style="color: var(--text-secondary); font-family: var(--font-mono); font-size: 0.75rem;">
+                    {{ album.release_date|date:"Y-m-d" }}
+                </td>
+                <td style="color: var(--text-secondary); font-family: var(--font-mono); font-size: 0.75rem;">
+                    {{ album.tracks.count }}
+                </td>
+                <td>
+                    <div class="track-actions-cell">
+                        <a href="{% url 'catalog:album_detail' album.pk %}"
+                           hx-get="{% url 'catalog:album_detail' album.pk %}"
+                           hx-target="#main-content"
+                           hx-push-url="true"
+                           class="btn-primary btn-sm">View</a>
+                        <a href="{% url 'catalog:track_create' %}?album={{ album.pk }}"
+                           hx-get="{% url 'catalog:track_create' %}?album={{ album.pk }}"
+                           hx-target="#main-content"
+                           hx-push-url="true"
+                           class="btn-outline btn-sm">+ Track</a>
+                        <a href="{% url 'catalog:album_update' album.pk %}"
+                           hx-get="{% url 'catalog:album_update' album.pk %}"
+                           hx-target="#main-content"
+                           hx-push-url="true"
+                           class="btn-outline btn-sm">Edit</a>
+                        <a href="{% url 'catalog:album_delete' album.pk %}"
+                           hx-get="{% url 'catalog:album_delete' album.pk %}"
+                           hx-target="#main-content"
+                           hx-push-url="true"
+                           class="btn-outline btn-sm"
+                           style="color: var(--danger-red);">Delete</a>
+                    </div>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="6" style="color: var(--text-muted); padding: 2.5rem 1rem; text-align: center;">
+                    You have not published any albums yet. Click <strong>+ New Album</strong> to release your first album.
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</section>

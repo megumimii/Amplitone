@@ -1,0 +1,82 @@
+<header class="top-navbar">
+    <div class="navbar-left">
+        <a href="{% url 'core:home' %}"
+           hx-get="{% url 'core:home' %}"
+           hx-target="#main-content"
+           hx-push-url="true"
+           class="brand-logo">
+            <span class="brand-mark" aria-hidden="true">
+                <span></span><span></span><span></span>
+            </span>
+            <span>AMPLITONE</span>
+        </a>
+
+        <div class="history-controls">
+            <button type="button" class="icon-btn" onclick="window.history.back()" title="Back" aria-label="Back">&lsaquo;</button>
+            <button type="button" class="icon-btn" onclick="window.history.forward()" title="Forward" aria-label="Forward">&rsaquo;</button>
+        </div>
+    </div>
+
+    {% if is_user_authenticated %}
+    <form class="navbar-search"
+          action="{% url 'core:search' %}"
+          method="get"
+          hx-get="{% url 'core:search' %}"
+          hx-target="#main-content"
+          hx-push-url="true">
+        <span class="navbar-search-icon">&#9906;</span>
+        <input id="global-search-input"
+               type="search"
+               name="q"
+               value="{{ query|default:'' }}"
+               class="navbar-search-input"
+               placeholder="Search artists, albums, tracks"
+               autocomplete="off"
+               hx-get="{% url 'core:search' %}"
+               hx-trigger="keyup changed delay:280ms, search"
+               hx-target="#main-content"
+               hx-push-url="true">
+        <span class="navbar-search-shortcut">&#8984;K</span>
+    </form>
+    {% endif %}
+
+    <div class="navbar-right">
+        <a href="{% url 'catalog:album_all' %}"
+           hx-get="{% url 'catalog:album_all' %}"
+           hx-target="#main-content"
+           hx-push-url="true"
+           class="nav-text-link">Explore</a>
+
+        {% if is_user_authenticated %}
+            <form method="post" action="{% url 'accounts:logout' %}" style="display:inline;">
+                {% csrf_token %}
+                <button type="submit" class="nav-text-link">Log out</button>
+            </form>
+            <a id="navbar-avatar"
+               href="{% url 'accounts:profile' %}"
+               hx-get="{% url 'accounts:profile' %}"
+               hx-target="#main-content"
+               hx-push-url="true"
+               class="avatar-circle"
+               title="Profile ({{ user.username }})">
+                {% if user_avatar_url %}
+                    <img src="{{ user_avatar_url }}" alt="{{ user.username }}">
+                {% else %}
+                    {{ user.username|slice:":2"|upper }}
+                {% endif %}
+            </a>
+        {% else %}
+            <a href="{% url 'accounts:login' %}"
+               hx-get="{% url 'accounts:login' %}"
+               hx-target="#main-content"
+               hx-push-url="true"
+               class="nav-text-link">Log in</a>
+            <a href="{% url 'accounts:register' %}"
+               hx-get="{% url 'accounts:register' %}"
+               hx-target="#main-content"
+               hx-push-url="true"
+               class="btn-primary btn-sm">Register</a>
+        {% endif %}
+    </div>
+</header>
+

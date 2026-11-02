@@ -1,0 +1,157 @@
+<aside class="left-sidebar">
+    <!-- Zone 1: OVERVIEW -->
+    <div class="sidebar-section">
+        <div class="sidebar-heading-row">
+            <span class="sidebar-kicker">Overview</span>
+        </div>
+        <ul class="sidebar-nav-list">
+            <li>
+                <a href="{% url 'catalog:album_all' %}"
+                   hx-get="{% url 'catalog:album_all' %}"
+                   hx-target="#main-content"
+                   hx-push-url="true"
+                   class="sidebar-link">
+                    <span>Albums</span>
+                    <span class="sidebar-counter">{{ sidebar_albums_count }}</span>
+                </a>
+            </li>
+            <li>
+                <a href="{% url 'catalog:track_all' %}"
+                   hx-get="{% url 'catalog:track_all' %}"
+                   hx-target="#main-content"
+                   hx-push-url="true"
+                   class="sidebar-link">
+                    <span>Tracks</span>
+                    <span class="sidebar-counter">{{ sidebar_tracks_count }}</span>
+                </a>
+            </li>
+            <li>
+                <a href="{% url 'artists:list' %}"
+                   hx-get="{% url 'artists:list' %}"
+                   hx-target="#main-content"
+                   hx-push-url="true"
+                   class="sidebar-link">
+                    <span>Artists</span>
+                </a>
+            </li>
+            <li>
+                <a href="{% url 'library:liked_songs' %}"
+                   hx-get="{% url 'library:liked_songs' %}"
+                   hx-target="#main-content"
+                   hx-push-url="true"
+                   class="sidebar-link">
+                    <span>Liked songs</span>
+                    <span id="sidebar-liked-count" class="sidebar-counter">{{ sidebar_liked_count }}</span>
+                </a>
+            </li>
+            <li>
+                <a href="{% url 'library:recently_played' %}"
+                   hx-get="{% url 'library:recently_played' %}"
+                   hx-target="#main-content"
+                   hx-push-url="true"
+                   class="sidebar-link">
+                    <span>Recently played</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <!-- Zone 2: MANAGE -->
+    <div class="sidebar-section">
+        <div class="sidebar-heading-row">
+            <span class="sidebar-kicker">Manage</span>
+        </div>
+        <ul class="sidebar-nav-list">
+            {% if user.is_staff or user.is_superuser %}
+            <li>
+                <a href="{% url 'artists:manage' %}"
+                   hx-get="{% url 'artists:manage' %}"
+                   hx-target="#main-content"
+                   hx-push-url="true"
+                   class="sidebar-link">
+                    <span>Artists</span>
+                    <span class="sidebar-arrow">&rarr;</span>
+                </a>
+            </li>
+            {% endif %}
+            <li>
+                <a href="{% url 'catalog:album_list' %}"
+                   hx-get="{% url 'catalog:album_list' %}"
+                   hx-target="#main-content"
+                   hx-push-url="true"
+                   class="sidebar-link">
+                    <span>Albums</span>
+                    <span class="sidebar-arrow">&rarr;</span>
+                </a>
+            </li>
+            <li>
+                <a href="{% url 'catalog:track_list' %}"
+                   hx-get="{% url 'catalog:track_list' %}"
+                   hx-target="#main-content"
+                   hx-push-url="true"
+                   class="sidebar-link">
+                    <span>Tracks</span>
+                    <span class="sidebar-arrow">&rarr;</span>
+                </a>
+            </li>
+            <li>
+                <a href="{% url 'library:playlist_list' %}"
+                   hx-get="{% url 'library:playlist_list' %}"
+                   hx-target="#main-content"
+                   hx-push-url="true"
+                   class="sidebar-link">
+                    <span>Playlists</span>
+                    <span class="sidebar-arrow">&rarr;</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <!-- Zone 3: PLAYLISTS -->
+    <div class="sidebar-section sidebar-section--grow">
+        <div>
+            <div class="sidebar-heading-row">
+                <span class="sidebar-kicker">Playlists</span>
+                <a href="{% url 'library:playlist_create' %}"
+                   hx-get="{% url 'library:playlist_create' %}"
+                   hx-target="#main-content"
+                   hx-push-url="true"
+                   class="sidebar-add-icon"
+                   title="Create Playlist">+</a>
+            </div>
+            <ul class="playlist-sidebar-list">
+                {% for pl in sidebar_playlists %}
+                <li>
+                    <a href="{% url 'library:playlist_detail' pl.pk %}"
+                       hx-get="{% url 'library:playlist_detail' pl.pk %}"
+                       hx-target="#main-content"
+                       hx-push-url="true"
+                       class="playlist-sidebar-item">
+                        <span class="playlist-index-box" style="overflow: hidden;">
+                            {% if pl.cover %}
+                                <img src="{{ pl.cover.url }}" alt="{{ pl.name }}" style="width: 100%; height: 100%; object-fit: cover;">
+                            {% else %}
+                                {{ forloop.counter|stringformat:"02d" }}
+                            {% endif %}
+                        </span>
+                        <div class="playlist-sidebar-meta">
+                            <div class="playlist-sidebar-title">{{ pl.name }}</div>
+                            <div class="playlist-sidebar-sub">Playlist &middot; {{ pl.tracks.count }} song(s)</div>
+                        </div>
+                    </a>
+                </li>
+                {% empty %}
+                <li style="color: var(--text-muted); font-size: 0.75rem; padding: 0.5rem 0.25rem;">
+                    No playlists created yet.
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <a href="{% url 'library:playlist_create' %}"
+           hx-get="{% url 'library:playlist_create' %}"
+           hx-target="#main-content"
+           hx-push-url="true"
+           class="new-playlist-btn">+ New playlist</a>
+    </div>
+</aside>

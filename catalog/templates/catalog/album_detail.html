@@ -1,0 +1,97 @@
+<section class="detail-header" data-animate="subtle">
+    <div class="detail-cover-box">
+        {% if album.cover %}
+            <img src="{{ album.cover.url }}" alt="{{ album.title }}">
+        {% else %}
+            <div class="media-artwork-fallback">
+                <span>{{ album.title }}</span>
+            </div>
+        {% endif %}
+    </div>
+
+    <div>
+        <span class="kicker-label">Album &middot; Released {{ album.release_date|date:"M d, Y" }}</span>
+        <h1 class="detail-title">{{ album.title }}</h1>
+        <div class="detail-meta-row">
+            <a href="{% url 'artists:detail' album.artist.pk %}"
+               hx-get="{% url 'artists:detail' album.artist.pk %}"
+               hx-target="#main-content"
+               hx-push-url="true"
+               style="color: var(--accent-orange); font-weight: 600;">
+                {{ album.artist.name }}
+            </a>
+            <span>&middot;</span>
+            <span>{{ tracks|length }} track(s)</span>
+        </div>
+
+        <div class="detail-toolbar">
+            {% if is_user_authenticated and tracks %}
+            {% with first_track=tracks.0 %}
+            <button type="button"
+                    class="btn-primary"
+                    data-play-track
+                    data-track-id="{{ first_track.pk }}"
+                    data-title="{{ first_track.title }}"
+                    data-artist="{{ album.artist.name }}"
+                    data-duration="{{ first_track.duration_seconds }}"
+                    data-audio-url="{% if first_track.audio_file %}{{ first_track.audio_file.url }}{% endif %}"
+                    data-cover-url="{% if first_track.cover %}{{ first_track.cover.url }}{% elif album.cover %}{{ album.cover.url }}{% endif %}">
+                &#9654; Play Album
+            </button>
+            {% endwith %}
+            {% endif %}
+
+            {% if can_manage_album %}
+            <a href="{% url 'catalog:track_create' %}?album={{ album.pk }}"
+               hx-get="{% url 'catalog:track_create' %}?album={{ album.pk }}"
+               hx-target="#main-content"
+               hx-push-url="true"
+               class="btn-outline">+ Add Track</a>
+            <a href="{% url 'catalog:album_update' album.pk %}"
+               hx-get="{% url 'catalog:album_update' album.pk %}"
+               hx-target="#main-content"
+               hx-push-url="true"
+               class="btn-outline">Edit Album</a>
+            <a href="{% url 'catalog:album_delete' album.pk %}"
+               hx-get="{% url 'catalog:album_delete' album.pk %}"
+               hx-target="#main-content"
+               hx-push-url="true"
+               class="btn-outline"
+               style="color: var(--danger-red);">Delete Album</a>
+            {% endif %}
+        </div>
+    </div>
+</section>
+
+<section class="content-section" data-animate="subtle">
+    <div class="section-header">
+        <div>
+            <span class="kicker-label">Sequence</span>
+            <h2 class="section-title">Tracklist</h2>
+        </div>
+    </div>
+
+    <table class="track-table">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Title</th>
+                <th>Album</th>
+                <th>Plays</th>
+                <th>Time</th>
+                <th style="text-align: right;">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for track in tracks %}
+                {% include 'core/components/track_row.html' with track=track %}
+            {% empty %}
+            <tr>
+                <td colspan="6" style="color: var(--text-muted); padding: 1.5rem 0.75rem;">
+                    No tracks added to this album yet.
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</section>

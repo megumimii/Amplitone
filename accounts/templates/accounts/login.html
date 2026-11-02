@@ -1,0 +1,53 @@
+<!-- Actual Login Page: Uses Noticeable IntersectionObserver Choreography (`data-animate="noticeable"`) -->
+<section class="editorial-split">
+    <div class="stagger-group">
+        <span class="kicker-label" data-animate="noticeable">Authentication Gateway / 01</span>
+        <h1 class="hero-display-title" data-animate="noticeable">
+            Enter the
+            <span class="accent-lines">nocturnal<br>frequency.</span>
+        </h1>
+        <hr style="border:none; border-top: var(--hairline) solid var(--accent-orange); margin: 1.5rem 0;"
+            data-animate="line">
+        <p class="hero-lead" data-animate="noticeable">
+            Sign in to access your private playlists, liked transmissions,
+            and persistent studio-grade audio playback.
+        </p>
+    </div>
+
+    <div class="form-panel stagger-group" data-animate="noticeable">
+        <span class="kicker-label" data-animate="noticeable">Credentials</span>
+        <h2 class="section-title" style="margin-bottom: 1.5rem;" data-animate="noticeable">Sign in to Amplitone</h2>
+
+        {% if form.non_field_errors %}
+        <ul class="form-errors" style="margin-bottom: 1rem;">
+            {% for err in form.non_field_errors %}
+            <li>{{ err }}</li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+
+        <form method="post" action="{% url 'accounts:login' %}" hx-post="{% url 'accounts:login' %}"
+            hx-target="#main-content">
+            {% csrf_token %}
+            <input type="hidden" name="next" value="{{ next }}">
+
+            {% for field in form %}
+            <div class="form-group" data-animate="noticeable">
+                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                {{ field }}
+                {% if field.errors %}
+                <ul class="form-errors">
+                    {% for error in field.errors %}<li>{{ error }}</li>{% endfor %}
+                </ul>
+                {% endif %}
+            </div>
+            {% endfor %}
+
+            <div class="form-actions" data-animate="noticeable">
+                <button type="submit" class="btn-primary">Sign In &rarr;</button>
+                <a href="{% url 'accounts:register' %}" hx-get="{% url 'accounts:register' %}" hx-target="#main-content"
+                    hx-push-url="true" class="btn-outline">Create Account</a>
+            </div>
+        </form>
+    </div>
+</section>

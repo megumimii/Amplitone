@@ -1,0 +1,7 @@
+<!-- Floating Toast Notification Bar (List of Self-Deleting Toasts) -->
+<ul id="toast-list" class="toast-list" aria-live="polite" aria-atomic="false">
+    {% for toast in toast_items %}
+        {% include 'core/components/toast_item.html' with toast=toast %}
+    {% endfor %}
+</ul>
+

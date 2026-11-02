@@ -1,0 +1,40 @@
+<section class="content-section" data-animate="subtle">
+    <div class="section-header">
+        <div>
+            <span class="kicker-label">Overview / Master Catalog</span>
+            <h1 class="section-title">All Tracks</h1>
+        </div>
+        {% if user.is_authenticated %}
+        <a href="{% url 'catalog:track_create' %}"
+           hx-get="{% url 'catalog:track_create' %}"
+           hx-target="#main-content"
+           hx-push-url="true"
+           class="btn-primary">+ Upload Track</a>
+        {% endif %}
+    </div>
+
+    <!-- All System Tracks Table -->
+    <table class="track-table">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Title</th>
+                <th>Album</th>
+                <th>Plays</th>
+                <th>Time</th>
+                <th style="text-align: right;">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for track in tracks %}
+                {% include 'core/components/track_row.html' with track=track %}
+            {% empty %}
+            <tr>
+                <td colspan="6" style="color: var(--text-muted); padding: 2.5rem 1rem; text-align: center;">
+                    No tracks in the catalog yet.
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</section>

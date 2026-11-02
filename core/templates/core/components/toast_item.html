@@ -1,0 +1,13 @@
+<li id="{{ toast.id }}"
+    class="toast-item toast-item--{{ toast.level|default:'info' }}"
+    data-toast-item
+    data-timeout="4000"
+    role="status">
+    <span class="toast-indicator" aria-hidden="true"></span>
+    <span class="toast-message">{{ toast.message }}</span>
+    <button type="button"
+            class="toast-close-btn"
+            onclick="window.AmplitoneToast && window.AmplitoneToast.removeById('{{ toast.id }}')"
+            aria-label="Dismiss notification">&times;</button>
+</li>
+

@@ -1,0 +1,74 @@
+<section class="content-section" data-animate="subtle">
+    <div class="section-header">
+        <div>
+            <span class="kicker-label">Overview / All Artists</span>
+            <h1 class="section-title">All Albums</h1>
+        </div>
+        {% if user.is_authenticated %}
+        <a href="{% url 'catalog:album_create' %}"
+           hx-get="{% url 'catalog:album_create' %}"
+           hx-target="#main-content"
+           hx-push-url="true"
+           class="btn-primary">+ New Album</a>
+        {% endif %}
+    </div>
+
+    <!-- Media Grid of All Albums -->
+    <div class="media-grid">
+        {% for album in albums %}
+        <article class="media-tile" data-animate="subtle">
+            <div class="media-artwork-box">
+                <span class="corner-index">{{ forloop.counter|stringformat:"02d" }}</span>
+                <a href="{% url 'catalog:album_detail' album.pk %}"
+                   hx-get="{% url 'catalog:album_detail' album.pk %}"
+                   hx-target="#main-content"
+                   hx-push-url="true">
+                    {% if album.cover %}
+                        <img src="{{ album.cover.url }}" alt="{{ album.title }}">
+                    {% else %}
+                        <div class="media-artwork-fallback">
+                            <span>{{ album.title }}</span>
+                        </div>
+                    {% endif %}
+                </a>
+
+                {% if is_user_authenticated %}
+                {% with first_track=album.tracks.first %}
+                {% if first_track %}
+                <button type="button"
+                        class="tile-play-trigger"
+                        data-play-track
+                        data-track-id="{{ first_track.pk }}"
+                        data-title="{{ first_track.title }}"
+                        data-artist="{{ album.artist.name }}"
+                        data-duration="{{ first_track.duration_seconds }}"
+                        data-audio-url="{% if first_track.audio_file %}{{ first_track.audio_file.url }}{% endif %}"
+                        data-cover-url="{% if album.cover %}{{ album.cover.url }}{% endif %}"
+                        title="Play {{ album.title }}">
+                    &#9654;
+                </button>
+                {% endif %}
+                {% endwith %}
+                {% endif %}
+            </div>
+
+            <div>
+                <a href="{% url 'catalog:album_detail' album.pk %}"
+                   hx-get="{% url 'catalog:album_detail' album.pk %}"
+                   hx-target="#main-content"
+                   hx-push-url="true"
+                   class="media-tile-title">{{ album.title }}</a>
+                <div class="media-tile-sub">
+                    <a href="{% url 'artists:detail' album.artist.pk %}"
+                       hx-get="{% url 'artists:detail' album.artist.pk %}"
+                       hx-target="#main-content"
+                       hx-push-url="true">{{ album.artist.name }}</a>
+                    &middot; {{ album.release_date|date:"Y" }}
+                </div>
+            </div>
+        </article>
+        {% empty %}
+        <p style="color: var(--text-secondary);">No albums in catalog yet.</p>
+        {% endfor %}
+    </div>
+</section>

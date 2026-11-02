@@ -1,0 +1,192 @@
+<!-- Hero Section (Reference Image 1) -->
+<section class="editorial-hero" data-animate="subtle">
+    <div class="hero-copy">
+        <span class="kicker-label">Amplitone Select / 001</span>
+        <h1 class="hero-display-title">
+            Music that
+            <span class="accent-lines">moves<br>differently.</span>
+        </h1>
+        <p class="hero-lead">
+            A handpicked transmission of left-field pop, nocturnal electronics,
+            and songs that stay after the room goes quiet.
+        </p>
+        <div class="hero-actions">
+            {% if is_user_authenticated %}
+                {% if hero_track %}
+                <button type="button"
+                        class="btn-primary"
+                        data-play-track
+                        data-track-id="{{ hero_track.pk }}"
+                        data-title="{{ hero_track.title }}"
+                        data-artist="{{ hero_track.album.artist.name }}"
+                        data-duration="{{ hero_track.duration_seconds }}"
+                        data-audio-url="{% if hero_track.audio_file %}{{ hero_track.audio_file.url }}{% endif %}"
+                        data-cover-url="{% if hero_track.album.cover %}{{ hero_track.album.cover.url }}{% endif %}">
+                    <span>&#9654;</span>
+                    <span>Play selection</span>
+                </button>
+                {% else %}
+                <a href="{% url 'catalog:album_all' %}"
+                   hx-get="{% url 'catalog:album_all' %}"
+                   hx-target="#main-content"
+                   hx-push-url="true"
+                   class="btn-primary">
+                    <span>&#9654;</span>
+                    <span>Play selection</span>
+                </a>
+                {% endif %}
+
+                <a href="{% url 'library:playlist_create' %}"
+                   hx-get="{% url 'library:playlist_create' %}"
+                   hx-target="#main-content"
+                   hx-push-url="true"
+                   class="btn-outline btn-square"
+                   title="Create New Playlist">+</a>
+            {% else %}
+                <a href="{% url 'accounts:login' %}"
+                   hx-get="{% url 'accounts:login' %}"
+                   hx-target="#main-content"
+                   hx-push-url="true"
+                   class="btn-primary">
+                    <span>&#9654;</span>
+                    <span>Sign in to listen</span>
+                </a>
+                <a href="{% url 'accounts:register' %}"
+                   hx-get="{% url 'accounts:register' %}"
+                   hx-target="#main-content"
+                   hx-push-url="true"
+                   class="btn-outline">Create account</a>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="hero-visual">
+        <div class="hero-portrait-frame">
+            {% if featured_albums.0 and featured_albums.0.cover %}
+                <img src="{{ featured_albums.0.cover.url }}" alt="{{ featured_albums.0.title }}">
+            {% endif %}
+            <span class="kicker-label" style="margin:0; position:relative; z-index:2;">
+                {% if featured_albums.0 %}{{ featured_albums.0.artist.name }}{% else %}Amplitone Catalog{% endif %}
+            </span>
+        </div>
+        <span class="hero-vertical-tag">Amplitone Exclusive</span>
+    </div>
+</section>
+
+<!-- Fresh Rotation / On Repeat (Reference Image 2) -->
+<section class="content-section" data-animate="subtle">
+    <div class="section-header">
+        <div>
+            <span class="kicker-label">Fresh Rotation</span>
+            <h2 class="section-title">On repeat</h2>
+        </div>
+        <a href="{% url 'catalog:album_all' %}"
+           hx-get="{% url 'catalog:album_all' %}"
+           hx-target="#main-content"
+           hx-push-url="true"
+           class="section-action-link">
+            <span>View all</span>
+            <span>&rsaquo;</span>
+        </a>
+    </div>
+
+    <div class="media-grid">
+        {% for album in featured_albums %}
+        <article class="media-tile" data-animate="subtle">
+            <div class="media-artwork-box">
+                <span class="corner-index">{{ forloop.counter|stringformat:"02d" }}</span>
+                <a href="{% url 'catalog:album_detail' album.pk %}"
+                   hx-get="{% url 'catalog:album_detail' album.pk %}"
+                   hx-target="#main-content"
+                   hx-push-url="true">
+                    {% if album.cover %}
+                        <img src="{{ album.cover.url }}" alt="{{ album.title }}">
+                    {% else %}
+                        <div class="media-artwork-fallback">
+                            <span>{{ album.title }}</span>
+                        </div>
+                    {% endif %}
+                </a>
+
+                {% if is_user_authenticated %}
+                {% with first_track=album.tracks.first %}
+                {% if first_track %}
+                <button type="button"
+                        class="tile-play-trigger"
+                        data-play-track
+                        data-track-id="{{ first_track.pk }}"
+                        data-title="{{ first_track.title }}"
+                        data-artist="{{ album.artist.name }}"
+                        data-duration="{{ first_track.duration_seconds }}"
+                        data-audio-url="{% if first_track.audio_file %}{{ first_track.audio_file.url }}{% endif %}"
+                        data-cover-url="{% if album.cover %}{{ album.cover.url }}{% endif %}"
+                        title="Play {{ album.title }}">
+                    &#9654;
+                </button>
+                {% endif %}
+                {% endwith %}
+                {% endif %}
+            </div>
+
+            <div>
+                <a href="{% url 'catalog:album_detail' album.pk %}"
+                   hx-get="{% url 'catalog:album_detail' album.pk %}"
+                   hx-target="#main-content"
+                   hx-push-url="true"
+                   class="media-tile-title">{{ album.title }}</a>
+                <div class="media-tile-sub">
+                    <a href="{% url 'artists:detail' album.artist.pk %}"
+                       hx-get="{% url 'artists:detail' album.artist.pk %}"
+                       hx-target="#main-content"
+                       hx-push-url="true">{{ album.artist.name }}</a>
+                </div>
+            </div>
+        </article>
+        {% empty %}
+        <p style="color: var(--text-secondary);">No albums in catalog yet.</p>
+        {% endfor %}
+    </div>
+</section>
+
+<!-- Based on Your Listening / For Your Frequency (Reference Image 2) -->
+<section class="content-section" data-animate="subtle">
+    <div class="section-header">
+        <div>
+            <span class="kicker-label">Based on your listening</span>
+            <h2 class="section-title">For your frequency</h2>
+        </div>
+        <a href="{% url 'catalog:track_all' %}"
+           hx-get="{% url 'catalog:track_all' %}"
+           hx-target="#main-content"
+           hx-push-url="true"
+           class="btn-outline btn-sm">
+            <span>&#9776;</span>
+            <span>View all</span>
+        </a>
+    </div>
+
+    <table class="track-table">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Title</th>
+                <th>Album</th>
+                <th>Plays</th>
+                <th>Time</th>
+                <th style="text-align: right;">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for track in frequency_tracks %}
+                {% include 'core/components/track_row.html' with track=track %}
+            {% empty %}
+            <tr>
+                <td colspan="6" style="color: var(--text-muted); padding: 1.5rem 0.75rem;">
+                    No tracks available yet.
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</section>
+

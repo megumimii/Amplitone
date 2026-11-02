@@ -1,0 +1,151 @@
+<!-- Registration Page: Uses Noticeable IntersectionObserver Choreography (`data-animate="noticeable"`) -->
+<section class="editorial-split">
+    <div class="stagger-group">
+        <span class="kicker-label" data-animate="noticeable">New Listener / 02</span>
+        <h1 class="hero-display-title" data-animate="noticeable">
+            Claim your
+            <span class="accent-lines">personal<br>archive.</span>
+        </h1>
+        <hr style="border:none; border-top: var(--hairline) solid var(--accent-orange); margin: 1.5rem 0;" data-animate="line">
+        <p class="hero-lead" data-animate="noticeable">
+            Register an Amplitone account to publish your own albums and tracks,
+            curate playlists from any artist's catalog, and save liked songs.
+        </p>
+    </div>
+
+    <div class="form-panel stagger-group" data-animate="noticeable">
+        <span class="kicker-label" data-animate="noticeable">Registration</span>
+        <h2 class="section-title" style="margin-bottom: 1.5rem;" data-animate="noticeable">Create Account</h2>
+
+        {% if form.non_field_errors %}
+        <ul class="form-errors" style="margin-bottom: 1rem;">
+            {% for err in form.non_field_errors %}<li>{{ err }}</li>{% endfor %}
+        </ul>
+        {% endif %}
+
+        <form method="post"
+              action="{% url 'accounts:register' %}"
+              hx-post="{% url 'accounts:register' %}"
+              hx-target="#main-content">
+            {% csrf_token %}
+
+            {% for field in form %}
+            <div class="form-group" data-animate="noticeable">
+                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                {{ field }}
+
+                {% if field.name == 'password1' %}
+                <!-- Interactive Password Requirement List (Turns green as requirements are satisfied) -->
+                <ul id="password-requirements-list" class="password-req-list">
+                    <li id="req-length" class="password-req-item">
+                        <span class="req-indicator">&#9675;</span>
+                        <span>Your password must contain at least 8 characters.</span>
+                    </li>
+                    <li id="req-numeric" class="password-req-item">
+                        <span class="req-indicator">&#9675;</span>
+                        <span>Your password can’t be entirely numeric (include letters).</span>
+                    </li>
+                    <li id="req-personal" class="password-req-item">
+                        <span class="req-indicator">&#9675;</span>
+                        <span>Your password can’t be too similar to your username or email.</span>
+                    </li>
+                    <li id="req-common" class="password-req-item">
+                        <span class="req-indicator">&#9675;</span>
+                        <span>Your password can’t be a commonly used password.</span>
+                    </li>
+                </ul>
+                {% elif field.name == 'password2' %}
+                <ul class="password-req-list">
+                    <li id="req-match" class="password-req-item">
+                        <span class="req-indicator">&#9675;</span>
+                        <span>Both password fields must match.</span>
+                    </li>
+                </ul>
+                {% elif field.help_text %}
+                <span class="form-help">{{ field.help_text }}</span>
+                {% endif %}
+
+                {% if field.errors %}
+                <ul class="form-errors">
+                    {% for error in field.errors %}<li>{{ error }}</li>{% endfor %}
+                </ul>
+                {% endif %}
+            </div>
+            {% endfor %}
+
+            <div class="form-actions" data-animate="noticeable">
+                <button type="submit" class="btn-primary">Register Account</button>
+                <a href="{% url 'accounts:login' %}"
+                   hx-get="{% url 'accounts:login' %}"
+                   hx-target="#main-content"
+                   hx-push-url="true"
+                   class="btn-outline">Already have an account?</a>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        (function () {
+            const pw1 = document.getElementById('id_password1');
+            const pw2 = document.getElementById('id_password2');
+            const userField = document.getElementById('id_username');
+            const emailField = document.getElementById('id_email');
+
+            const reqLength = document.getElementById('req-length');
+            const reqNumeric = document.getElementById('req-numeric');
+            const reqPersonal = document.getElementById('req-personal');
+            const reqCommon = document.getElementById('req-common');
+            const reqMatch = document.getElementById('req-match');
+
+            const commonBanned = new Set([
+                'password', '12345678', '123456789', 'qwerty123', 'password1',
+                'iloveyou', 'admin123', 'welcome1', 'letmein1', 'monkey123'
+            ]);
+
+            function setReqState(el, isValid) {
+                if (!el) return;
+                el.classList.toggle('is-valid', isValid);
+                const icon = el.querySelector('.req-indicator');
+                if (icon) {
+                    icon.innerHTML = isValid ? '&#10003;' : '&#9675;';
+                }
+            }
+
+            function evaluatePassword() {
+                if (!pw1) return;
+                const val = pw1.value || '';
+                const confirmVal = pw2 ? (pw2.value || '') : '';
+                const username = userField ? (userField.value || '').trim().toLowerCase() : '';
+                const emailLocal = emailField ? ((emailField.value || '').split('@')[0] || '').trim().toLowerCase() : '';
+
+                const hasMinLen = val.length >= 8;
+                const notAllNumeric = val.length > 0 && !/^\d+$/.test(val);
+                const lowerVal = val.toLowerCase();
+
+                let notPersonal = val.length > 0;
+                if (username && username.length >= 3 && lowerVal.includes(username)) {
+                    notPersonal = false;
+                }
+                if (emailLocal && emailLocal.length >= 3 && lowerVal.includes(emailLocal)) {
+                    notPersonal = false;
+                }
+
+                const notCommon = val.length >= 8 && !commonBanned.has(lowerVal);
+                const matches = val.length >= 8 && val === confirmVal;
+
+                setReqState(reqLength, hasMinLen);
+                setReqState(reqNumeric, notAllNumeric);
+                setReqState(reqPersonal, notPersonal);
+                setReqState(reqCommon, notCommon);
+                setReqState(reqMatch, matches);
+            }
+
+            [pw1, pw2, userField, emailField].forEach((input) => {
+                if (input) {
+                    input.addEventListener('input', evaluatePassword);
+                }
+            });
+            evaluatePassword();
+        })();
+    </script>
+</section>

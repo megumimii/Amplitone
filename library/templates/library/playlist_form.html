@@ -1,0 +1,56 @@
+<section class="editorial-split" data-animate="subtle">
+    <div>
+        <span class="kicker-label">Playlist CRUD</span>
+        <h1 class="detail-title">
+            {% if is_edit %}Edit {{ playlist.name }}{% else %}New Playlist{% endif %}
+        </h1>
+        <p class="hero-lead">
+            Only the playlist owner can modify or delete this collection.
+        </p>
+    </div>
+
+    <div class="form-panel">
+        {% if form.non_field_errors %}
+        <ul class="form-errors" style="margin-bottom: 1rem;">
+            {% for err in form.non_field_errors %}<li>{{ err }}</li>{% endfor %}
+        </ul>
+        {% endif %}
+
+        <form method="post"
+              enctype="multipart/form-data"
+              action="{% if is_edit %}{% url 'library:playlist_update' playlist.pk %}{% else %}{% url 'library:playlist_create' %}{% endif %}"
+              hx-post="{% if is_edit %}{% url 'library:playlist_update' playlist.pk %}{% else %}{% url 'library:playlist_create' %}{% endif %}"
+              hx-encoding="multipart/form-data"
+              hx-target="#main-content"
+              hx-push-url="true">
+            {% csrf_token %}
+
+            {% for field in form %}
+            <div class="form-group">
+                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                {{ field }}
+                {% if field.help_text %}
+                <span class="form-help">{{ field.help_text }}</span>
+                {% endif %}
+                {% if field.errors %}
+                <ul class="form-errors">
+                    {% for error in field.errors %}<li>{{ error }}</li>{% endfor %}
+                </ul>
+                {% endif %}
+            </div>
+            {% endfor %}
+
+            <div class="form-actions">
+                <button type="submit" class="btn-primary">
+                    {% if is_edit %}Update Playlist{% else %}Create Playlist{% endif %}
+                </button>
+                <a href="{% if is_edit %}{% url 'library:playlist_detail' playlist.pk %}{% else %}{% url 'library:playlist_list' %}{% endif %}"
+                   hx-get="{% if is_edit %}{% url 'library:playlist_detail' playlist.pk %}{% else %}{% url 'library:playlist_list' %}{% endif %}"
+                   hx-target="#main-content"
+                   hx-push-url="true"
+                   class="btn-outline">Cancel</a>
+            </div>
+        </form>
+    </div>
+</section>
+
