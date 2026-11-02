@@ -20,7 +20,7 @@ SECRET_KEY = 'django-insecure-tv#9yqo^zej@&)a*wsu^z4e*+0$0fqp6rwkw%18s^6jam-xc!x
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = ['://pythonanywhere.com', 'localhost', '127.0.0.1']
+ALLOWED_HOSTS = ['megu0913.pythonanywhere.com', 'localhost', '127.0.0.1']
 
 
 # Application definition
