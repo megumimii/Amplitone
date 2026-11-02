@@ -1,5 +1,16 @@
 # Amplitone — Update Logs
 
+## 2026-11-02 — Add Python Bytecode & Pycache Rules to Gitignore
+
+### Summary
+Updated [`.gitignore`](file:///c:/Users/Isaac/Downloads/amplitone/.gitignore) to exclude `config/__pycache__/` and Python bytecode files globally (`__pycache__/`, `*.pyc`), and removed tracked `.pyc` files from the Git staging index.
+
+### Key Changes
+1. **`.gitignore`**:
+   - Added standard bytecode ignore rules (`__pycache__/`, `*.py[cod]`, `config/__pycache__/`), virtual environment folders, sqlite databases, media uploads, and IDE files.
+2. **Git Index**:
+   - Untracked cached `.pyc` files from Git staging via `git rm -r --cached`.
+
 ## 2026-11-02 — Remove "Processing..." Loading State on Navigation Buttons
 
 ### Summary

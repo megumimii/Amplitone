@@ -1,0 +1,30 @@
+# Python bytecode & cache
+__pycache__/
+*.py[cod]
+*$py.class
+config/__pycache__/
+
+# Environments
+.venv/
+env/
+venv/
+ENV/
+
+# Database
+*.sqlite3
+db.sqlite3
+
+# Media uploads (user uploaded content)
+media/
+
+# Static collected
+staticfiles/
+
+# Logs
+*.log
+
+# OS / Editor files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
