@@ -18,4 +18,11 @@
 - **Root cause**: HTMX partial responses bypassed `base.html`, so `messages` were not consumed during HTMX requests, and static banner elements had no auto-dismissal or DOM cleanup lifecycle.
 - **Prevention**: Consume Django `messages` inside the central `render_page()` helper on every request (both full loads and HTMX requests), deliver them to a floating `<ul id="toast-list">` via HTMX Out-of-Band swaps (`hx-swap-oob="beforeend"`), and attach a `setTimeout` to each toast using a randomly generated element ID so it deletes its own node (`node.remove()`) from the DOM.
 
+## Lesson 4: Browser Caching of Form Media Preview Styles
+
+- **Problem**: When media preview boxes (image and audio previews) were added to create and update forms, user browsers with cached stylesheets rendered unconstrained, full-resolution artwork images that blew past form containers and showed raw browser audio widgets without styling.
+- **Root cause**: External stylesheet updates (`amplitone.css`) were cached by the browser during development without query-string cache busting, and the preview components initially lacked inline structural constraints (`max-width: 140px; height: 140px; object-fit: cover; display: flex`).
+- **Prevention**: Always apply versioned cache-busting query parameters (`?v=...`) to main stylesheet links in `base.html`. For rich form media components, enforce baseline dimensions, containment rules, and aesthetic boundaries (`width`, `height`, `object-fit`, `overflow: hidden`, `background`, `border`, `border-radius`, `badge pill styles`) directly within the component markup alongside the CSS stylesheet so the UI is 100% resilient and impervious to stale browser caches.
+
+
 

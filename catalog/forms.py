@@ -7,6 +7,7 @@ strict binary header verification.
 """
 
 from django import forms
+from django.db import models
 from core.validators import (
     StrictFileSecurityFormMixin,
     extract_audio_duration,
@@ -27,7 +28,11 @@ class AlbumForm(StrictFileSecurityFormMixin, forms.ModelForm):
     cover = forms.FileField(
         required=False,
         validators=[validate_image_file],
-        widget=forms.FileInput(attrs={'accept': 'image/*,.jpg,.jpeg,.png,.webp'}),
+        widget=forms.FileInput(attrs={
+            'accept': 'image/*,.jpg,.jpeg,.png,.webp',
+            'data-preview-image': 'true',
+            'id': 'id_album_cover',
+        }),
         help_text="Square album cover (JPG, PNG, or WEBP, max 5 MB).",
     )
     release_date = forms.DateField(
@@ -59,12 +64,16 @@ class AlbumForm(StrictFileSecurityFormMixin, forms.ModelForm):
 
 
 class TrackForm(StrictFileSecurityFormMixin, forms.ModelForm):
-    """Form for creating and editing a Track with audio duration auto-derivation."""
+    """Form for creating and editing a Track with auto sequence numbering and audio duration auto-derivation."""
 
     cover = forms.FileField(
         required=False,
         validators=[validate_image_file],
-        widget=forms.FileInput(attrs={'accept': 'image/*,.jpg,.jpeg,.png,.webp'}),
+        widget=forms.FileInput(attrs={
+            'accept': 'image/*,.jpg,.jpeg,.png,.webp',
+            'data-preview-image': 'true',
+            'id': 'id_track_cover',
+        }),
         help_text="Optional track photo / single artwork (defaults to album cover if not set).",
     )
     audio_file = forms.FileField(
@@ -72,6 +81,7 @@ class TrackForm(StrictFileSecurityFormMixin, forms.ModelForm):
         validators=[validate_audio_file],
         widget=forms.FileInput(attrs={
             'accept': 'audio/*,.mp3,.wav,.ogg,.flac,.m4a',
+            'data-preview-audio': 'true',
             'id': 'id_audio_file',
         }),
         help_text="Audio stream (MP3, WAV, OGG, FLAC, M4A). Duration is auto-derived from the file.",
@@ -83,7 +93,7 @@ class TrackForm(StrictFileSecurityFormMixin, forms.ModelForm):
 
     class Meta:
         model = Track
-        fields = ('album', 'track_number', 'title', 'cover', 'audio_file', 'duration_seconds')
+        fields = ('album', 'title', 'cover', 'audio_file', 'duration_seconds')
 
     def __init__(self, *args, user=None, **kwargs):
         super().__init__(*args, **kwargs)
@@ -112,3 +122,17 @@ class TrackForm(StrictFileSecurityFormMixin, forms.ModelForm):
             cleaned_data['duration_seconds'] = self.instance.duration_seconds if self.instance.pk else 180
 
         return cleaned_data
+
+    def save(self, commit=True):
+        track = super().save(commit=False)
+        if not track.pk or not track.track_number:
+            if track.album:
+                max_track_num = track.album.tracks.aggregate(
+                    models.Max('track_number')
+                )['track_number__max'] or 0
+                track.track_number = max_track_num + 1
+            else:
+                track.track_number = 1
+        if commit:
+            track.save()
+        return track

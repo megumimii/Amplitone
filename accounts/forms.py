@@ -110,21 +110,46 @@ class UserLoginForm(StrictFileSecurityFormMixin, AuthenticationForm):
 
 class UserProfileForm(StrictFileSecurityFormMixin, forms.ModelForm):
     """
-    Form allowing a logged-in user to update their profile details and upload
+    Form allowing a logged-in user to update their profile details, bio, and upload
     a profile picture (`profile_picture`).
     """
 
+    bio = forms.CharField(
+        required=False,
+        label="Biography",
+        widget=forms.Textarea(attrs={
+            'rows': 3,
+            'placeholder': 'Tell the community about yourself, your musical frequency, or artist statement...',
+            'id': 'id_profile_bio',
+        }),
+        help_text="Personal biography, listener notes, or artist statement.",
+    )
     profile_picture = forms.FileField(
         required=False,
         label="Profile Picture",
         validators=[validate_image_file],
-        widget=forms.FileInput(attrs={'accept': 'image/*,.jpg,.jpeg,.png,.webp'}),
+        widget=forms.FileInput(attrs={
+            'accept': 'image/*,.jpg,.jpeg,.png,.webp',
+            'data-preview-image': 'true',
+            'id': 'id_profile_picture',
+        }),
         help_text="Upload a square JPG, PNG, or WEBP profile photo (max 5 MB).",
     )
 
     class Meta:
         model = User
         fields = ('username', 'email', 'first_name', 'last_name')
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.instance and self.instance.pk:
+            profile = getattr(self.instance, 'user_profile', None)
+            artist = getattr(self.instance, 'artist_profile', None)
+            if profile and profile.bio:
+                self.fields['bio'].initial = profile.bio
+            elif artist and artist.bio:
+                self.fields['bio'].initial = artist.bio
+        self.order_fields(['username', 'email', 'first_name', 'last_name', 'bio', 'profile_picture'])
 
     @transaction.atomic
     def save(self, commit=True):
@@ -134,6 +159,13 @@ class UserProfileForm(StrictFileSecurityFormMixin, forms.ModelForm):
             uploaded_avatar = self.cleaned_data.get('profile_picture')
             if uploaded_avatar:
                 profile.avatar = uploaded_avatar
-                profile.save()
+            bio_text = self.cleaned_data.get('bio', '').strip()
+            profile.bio = bio_text
+            profile.save()
+
+            # Keep linked Artist profile bio in sync if present
+            if hasattr(user, 'artist_profile') and user.artist_profile:
+                user.artist_profile.bio = bio_text
+                user.artist_profile.save(update_fields=['bio'])
         return user
 

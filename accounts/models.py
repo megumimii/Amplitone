@@ -11,12 +11,17 @@ from core.validators import validate_image_file
 
 
 class UserProfile(models.Model):
-    """Stores user-level profile metadata, including their uploaded profile picture."""
+    """Stores user-level profile metadata, including their uploaded profile picture and bio."""
 
     user = models.OneToOneField(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
         related_name='user_profile',
+    )
+    bio = models.TextField(
+        blank=True,
+        default='',
+        help_text="Personal biography, listener notes, or artist statement.",
     )
     avatar = models.FileField(
         upload_to='accounts/avatars/',

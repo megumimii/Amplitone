@@ -22,7 +22,7 @@ def admin_required(view_func):
             return redirect_to_login(request.get_full_path())
 
         if not (request.user.is_staff or request.user.is_superuser):
-            raise PermissionDenied("Administrator privileges are required for Artist CRUD.")
+            raise PermissionDenied("Administrator privileges are required to manage artists.")
 
         return view_func(request, *args, **kwargs)
 

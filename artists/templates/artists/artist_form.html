@@ -1,6 +1,6 @@
 <section class="editorial-split" data-animate="subtle">
     <div>
-        <span class="kicker-label">Admin Only / Artist CRUD</span>
+        <span class="kicker-label">Admin Console / Artist Profile</span>
         <h1 class="detail-title">
             {% if is_edit %}Edit {{ artist.name }}{% else %}New Artist &amp; Account{% endif %}
         </h1>
@@ -36,6 +36,25 @@
                 {% if field.help_text %}
                 <span class="form-help">{{ field.help_text }}</span>
                 {% endif %}
+
+                {% if field.name == 'image' %}
+                <div class="media-preview-container {% if not is_edit or not artist.image %}is-hidden{% endif %}"
+                     style="margin-top: 0.75rem; padding: 0.875rem; background: var(--bg-surface, #141414); border: 1px solid var(--border-subtle, rgba(255,255,255,0.1)); display: {% if is_edit and artist.image %}flex{% else %}none{% endif %}; flex-direction: column; gap: 0.625rem; border-radius: 4px; box-sizing: border-box; width: 100%;"
+                     {% if is_edit and artist.image %}data-original-url="{{ artist.image.url }}" data-original-filename="{{ artist.image.name }}"{% endif %}>
+                    <div class="media-preview-header" style="display: flex; align-items: center; justify-content: space-between; gap: 0.5rem;">
+                        <span class="media-preview-badge" style="font-size: 0.625rem; font-family: var(--font-mono, monospace); text-transform: uppercase; letter-spacing: 0.1em; color: var(--accent-orange, #e06535); background: rgba(224, 101, 53, 0.12); border: 1px solid rgba(224, 101, 53, 0.28); padding: 0.2rem 0.5rem; border-radius: 2px;">
+                            {% if is_edit and artist.image %}Current Portrait{% else %}Portrait Preview{% endif %}
+                        </span>
+                        <span class="media-preview-filename" style="font-size: 0.6875rem; color: var(--text-muted, #888); font-family: var(--font-mono, monospace); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 240px;">
+                            {% if is_edit and artist.image %}{{ artist.image.name }}{% endif %}
+                        </span>
+                    </div>
+                    <div class="media-preview-image-wrap" style="width: 140px; height: 140px; max-width: 100%; aspect-ratio: 1 / 1; background: var(--bg-elevated, #1a1a1a); border: 1px solid var(--border-hairline, rgba(255,255,255,0.12)); overflow: hidden; position: relative; border-radius: 2px;">
+                        <img src="{% if is_edit and artist.image %}{{ artist.image.url }}{% endif %}" alt="Artist portrait preview" style="width: 100%; height: 100%; max-width: 140px; max-height: 140px; object-fit: cover; display: block;">
+                    </div>
+                </div>
+                {% endif %}
+
                 {% if field.errors %}
                 <ul class="form-errors">
                     {% for error in field.errors %}<li>{{ error }}</li>{% endfor %}

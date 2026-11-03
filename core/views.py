@@ -23,7 +23,7 @@ def home_view(request):
     Renders the main Amplitone discovery dashboard:
     - Editorial Hero ("Music that moves differently.")
     - "On repeat" 4-column Album grid
-    - "For your frequency" Track table
+    - "For your frequency" / "Popular tracks" Track table
     """
     featured_albums = (
         Album.objects.select_related('artist')

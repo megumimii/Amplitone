@@ -38,7 +38,11 @@ class ArtistCreateForm(StrictFileSecurityFormMixin, forms.ModelForm):
     image = forms.FileField(
         required=False,
         validators=[validate_image_file],
-        widget=forms.FileInput(attrs={'accept': 'image/*,.jpg,.jpeg,.png,.webp'}),
+        widget=forms.FileInput(attrs={
+            'accept': 'image/*,.jpg,.jpeg,.png,.webp',
+            'data-preview-image': 'true',
+            'id': 'id_artist_image_create',
+        }),
         help_text="Upload JPG, PNG, or WEBP portrait (max 5 MB).",
     )
 
@@ -76,7 +80,11 @@ class ArtistUpdateForm(StrictFileSecurityFormMixin, forms.ModelForm):
     image = forms.FileField(
         required=False,
         validators=[validate_image_file],
-        widget=forms.FileInput(attrs={'accept': 'image/*,.jpg,.jpeg,.png,.webp'}),
+        widget=forms.FileInput(attrs={
+            'accept': 'image/*,.jpg,.jpeg,.png,.webp',
+            'data-preview-image': 'true',
+            'id': 'id_artist_image_update',
+        }),
         help_text="Upload a new JPG, PNG, or WEBP portrait to replace the current one.",
     )
 

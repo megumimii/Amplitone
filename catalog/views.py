@@ -268,7 +268,6 @@ def track_create_view(request):
             album_obj = Album.objects.filter(pk=int(album_id), artist=user_artist).first()
         if album_obj:
             initial['album'] = album_obj.pk
-            initial['track_number'] = album_obj.tracks.count() + 1
 
     if request.method == 'POST':
         form = TrackForm(request.POST, request.FILES, user=request.user)

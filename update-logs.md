@@ -126,6 +126,47 @@ Implemented the full **Amplitone** streaming web application using **Django 6 + 
 - Updated `library/templates/library/playlist_detail.html`, `library/templates/library/playlist_list.html`, and `core/templates/core/components/sidebar.html` to display the playlist cover photo.
 - Added `library/signals.py` (`post_delete` and `pre_save`) connected in `library/apps.py` to physically delete orphaned playlist cover photos from disk storage (`media/playlists/covers/`) upon playlist deletion or cover replacement.
 
+## 2026-11-04 — Guest Landing Page Track Header Rewording
+- Updated `core/templates/core/partials/home.html` to conditionally display section titles based on user authentication state (`is_user_authenticated`).
+- When viewed as a non-authenticated guest on the landing page, replaced `"Based on your listening"` and `"For your frequency"` with `"Trending Now"` and `"Popular tracks"`, reflecting the platform-wide top-played tracks accurately without falsely implying user listening history tracking.
+- Maintained personalized `"Based on your listening"` and `"For your frequency"` headers when an authenticated user is logged in.
+- Added test assertions in `core/tests.py` (`test_guest_vs_authenticated_shell_and_htmx_toast_bar`) to verify header copy for both guest and authenticated requests.
+
+## 2026-11-04 — Automatic Track Numbering, Media Previews & Profile Bio
+- **Automatic Track Sequencing**:
+  - Removed manual `track_number` input field from `TrackForm` (`catalog/forms.py`) and Track Create / Update templates (`catalog/templates/catalog/track_form.html`).
+  - Added automatic calculation on `TrackForm.save()`: new tracks automatically sequence into the next available slot per album (order of upload: 1, 2, 3...) using `Max('track_number') + 1`.
+  - Added visual track sequence indicator badge (`Track #02`) in `track_form.html` when editing.
+- **Media Previews (Image & Audio)**:
+  - Implemented interactive image and audio preview cards across all create and update views with media uploads:
+    - Track (`cover` artwork and `audio_file` player preview).
+    - Album (`cover` artwork preview).
+    - Playlist (`cover` artwork preview).
+    - Artist (`image` portrait preview).
+    - User Profile (`profile_picture` avatar preview).
+  - Previews show existing uploaded media on update views with orange editorial badge (`Current Artwork`, `Current Audio`, `Current Portrait`, `Current Avatar`).
+  - Added live file reader in `core/static/core/js/animations.js` updating previews dynamically upon file selection (`URL.createObjectURL(file)`).
+  - Enforced resilient layout constraints (`max-width: 140px; height: 140px; object-fit: cover; display: flex; border-radius: 4px`) both in stylesheet and component inline rules to prevent unconstrained overflow regardless of browser caching.
+  - Added stylesheet cache-busting query string `?v=20261104b` in `core/templates/core/base.html`.
+- **User Profile Bio Editing**:
+  - Added `bio` field to `UserProfile` model (`accounts/models.py`, migration `accounts.0002_userprofile_bio`).
+  - Added `bio` textarea input to `UserProfileForm` (`accounts/forms.py`), populating from `UserProfile` or `Artist` profile and synchronizing bio updates between both models.
+  - Displayed biography in `accounts/templates/accounts/profile.html` alongside listener/artist metadata.
+- **Automated Verification**:
+  - Added comprehensive automated test method `test_automatic_track_numbering_and_media_previews` in `core/tests.py` verifying track upload auto-sequencing, field omission, media preview markup, and bio editing persistence.
+
+## 2026-11-04 — Removed "CRUD" Terminology Across User-Facing Views
+- Replaced developer "CRUD" wording with clean, user-friendly editorial labels across all templates:
+  - `accounts/templates/accounts/profile.html`: Replaced `"Admin Artist CRUD &rarr;"` with `"Manage Artists &rarr;"`.
+  - `artists/templates/artists/artist_form.html`: Replaced `"<span class="kicker-label">Admin Only / Artist CRUD</span>"` with `"<span class="kicker-label">Admin Console / Artist Profile</span>"`.
+  - `catalog/templates/catalog/album_form.html`: Replaced `"<span class="kicker-label">Album CRUD</span>"` with `"<span class="kicker-label">Album Release / Catalog</span>"`.
+  - `catalog/templates/catalog/track_form.html`: Replaced `"<span class="kicker-label">Track CRUD</span>"` with `"<span class="kicker-label">Track Studio / Catalog</span>"`.
+  - `library/templates/library/playlist_form.html`: Replaced `"<span class="kicker-label">Playlist CRUD</span>"` with `"<span class="kicker-label">Playlist Collection</span>"`.
+  - `accounts/decorators.py`: Updated permission error message from `"Administrator privileges are required for Artist CRUD."` to `"Administrator privileges are required to manage artists."`.
+
+
+
+
 
 
 

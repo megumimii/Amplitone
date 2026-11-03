@@ -148,12 +148,17 @@
     </div>
 </section>
 
-<!-- Based on Your Listening / For Your Frequency (Reference Image 2) -->
+<!-- Track Highlights: Personalized for auth users, Trending for guests (Reference Image 2) -->
 <section class="content-section" data-animate="subtle">
     <div class="section-header">
         <div>
-            <span class="kicker-label">Based on your listening</span>
-            <h2 class="section-title">For your frequency</h2>
+            {% if is_user_authenticated %}
+                <span class="kicker-label">Based on your listening</span>
+                <h2 class="section-title">For your frequency</h2>
+            {% else %}
+                <span class="kicker-label">Trending Now</span>
+                <h2 class="section-title">Popular tracks</h2>
+            {% endif %}
         </div>
         <a href="{% url 'catalog:track_all' %}"
            hx-get="{% url 'catalog:track_all' %}"

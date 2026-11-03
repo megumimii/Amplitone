@@ -17,7 +17,11 @@ class PlaylistForm(StrictFileSecurityFormMixin, forms.ModelForm):
     cover = forms.FileField(
         required=False,
         validators=[validate_image_file],
-        widget=forms.FileInput(attrs={'accept': 'image/*,.jpg,.jpeg,.png,.webp'}),
+        widget=forms.FileInput(attrs={
+            'accept': 'image/*,.jpg,.jpeg,.png,.webp',
+            'data-preview-image': 'true',
+            'id': 'id_playlist_cover',
+        }),
         help_text="Square playlist artwork (JPG, PNG, or WEBP, max 5 MB).",
     )
 

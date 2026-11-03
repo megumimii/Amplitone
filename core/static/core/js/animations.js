@@ -266,6 +266,93 @@
         });
     });
 
+    // ========================================================================
+    // MEDIA FILE PREVIEW CONTROLLER (Image & Audio Previews)
+    // ========================================================================
+
+    document.addEventListener('change', (e) => {
+        const input = e.target;
+        if (!input || input.type !== 'file') return;
+
+        const formGroup = input.closest('.form-group');
+        if (!formGroup) return;
+
+        const previewContainer = formGroup.querySelector('.media-preview-container');
+        if (!previewContainer) return;
+
+        const isAudio = input.matches('[data-preview-audio], [accept*="audio"]') || previewContainer.querySelector('audio');
+        const file = input.files && input.files[0];
+
+        if (isAudio) {
+            const audioEl = previewContainer.querySelector('audio');
+            const badgeEl = previewContainer.querySelector('.media-preview-badge');
+            const nameEl = previewContainer.querySelector('.media-preview-filename');
+
+            if (file) {
+                const objectUrl = URL.createObjectURL(file);
+                if (audioEl) audioEl.src = objectUrl;
+                if (badgeEl) badgeEl.textContent = 'New Audio Selection';
+                if (nameEl) nameEl.textContent = file.name;
+                previewContainer.classList.remove('is-hidden');
+                previewContainer.style.display = 'flex';
+
+                // Auto-detect audio duration if hidden duration input is present in the form
+                const form = input.closest('form');
+                const durationInput = form ? form.querySelector('#id_duration_seconds') : null;
+                if (durationInput) {
+                    const tempAudio = new Audio();
+                    tempAudio.preload = 'metadata';
+                    tempAudio.src = objectUrl;
+                    tempAudio.addEventListener('loadedmetadata', () => {
+                        if (tempAudio.duration && !isNaN(tempAudio.duration) && isFinite(tempAudio.duration)) {
+                            durationInput.value = Math.max(1, Math.round(tempAudio.duration));
+                        }
+                    });
+                }
+            } else {
+                const originalSrc = previewContainer.dataset.originalUrl;
+                if (originalSrc && audioEl) {
+                    audioEl.src = originalSrc;
+                    if (badgeEl) badgeEl.textContent = 'Current Audio';
+                    if (nameEl) nameEl.textContent = previewContainer.dataset.originalFilename || 'Existing Audio';
+                    previewContainer.classList.remove('is-hidden');
+                    previewContainer.style.display = 'flex';
+                } else {
+                    if (audioEl) audioEl.removeAttribute('src');
+                    previewContainer.classList.add('is-hidden');
+                    previewContainer.style.display = 'none';
+                }
+            }
+        } else {
+            // Image Preview
+            const imgEl = previewContainer.querySelector('img');
+            const badgeEl = previewContainer.querySelector('.media-preview-badge');
+            const nameEl = previewContainer.querySelector('.media-preview-filename');
+
+            if (file) {
+                const objectUrl = URL.createObjectURL(file);
+                if (imgEl) imgEl.src = objectUrl;
+                if (badgeEl) badgeEl.textContent = 'New Selection';
+                if (nameEl) nameEl.textContent = file.name;
+                previewContainer.classList.remove('is-hidden');
+                previewContainer.style.display = 'flex';
+            } else {
+                const originalSrc = previewContainer.dataset.originalUrl;
+                if (originalSrc && imgEl) {
+                    imgEl.src = originalSrc;
+                    if (badgeEl) badgeEl.textContent = 'Current Image';
+                    if (nameEl) nameEl.textContent = previewContainer.dataset.originalFilename || 'Existing Artwork';
+                    previewContainer.classList.remove('is-hidden');
+                    previewContainer.style.display = 'flex';
+                } else {
+                    if (imgEl) imgEl.removeAttribute('src');
+                    previewContainer.classList.add('is-hidden');
+                    previewContainer.style.display = 'none';
+                }
+            }
+        }
+    });
+
     // HTMX request lifecycle loading state
     document.body.addEventListener('htmx:beforeRequest', (event) => {
         const triggerEl = event.detail.elt;

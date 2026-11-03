@@ -1389,3 +1389,94 @@ button.is-loading,
     }
 }
 
+/* ==========================================================================
+   MEDIA PREVIEW COMPONENTS (Image & Audio Previews for Create / Update)
+   ========================================================================== */
+
+.media-preview-container {
+    margin-top: 0.75rem;
+    padding: 0.875rem;
+    background-color: var(--bg-surface);
+    border: var(--hairline) solid var(--border-subtle);
+    display: flex;
+    flex-direction: column;
+    gap: 0.625rem;
+    border-radius: 4px;
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 100%;
+}
+
+.media-preview-container.is-hidden {
+    display: none !important;
+}
+
+.media-preview-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+}
+
+.media-preview-badge {
+    font-size: 0.625rem;
+    font-family: var(--font-mono);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--accent-orange);
+    background: rgba(224, 101, 53, 0.12);
+    border: 1px solid rgba(224, 101, 53, 0.28);
+    padding: 0.2rem 0.5rem;
+    border-radius: 2px;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+}
+
+.media-preview-filename {
+    font-size: 0.6875rem;
+    color: var(--text-muted);
+    font-family: var(--font-mono);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 240px;
+}
+
+.media-preview-image-wrap {
+    width: 140px;
+    height: 140px;
+    max-width: 100%;
+    aspect-ratio: 1 / 1;
+    background-color: var(--bg-elevated);
+    border: var(--hairline) solid var(--border-hairline);
+    overflow: hidden;
+    position: relative;
+    border-radius: 2px;
+}
+
+.media-preview-image-wrap img {
+    width: 100%;
+    height: 100%;
+    max-width: 140px;
+    max-height: 140px;
+    object-fit: cover;
+    display: block;
+}
+
+.media-preview-audio-wrap {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+}
+
+.media-preview-audio-wrap audio {
+    width: 100%;
+    height: 38px;
+    outline: none;
+    border-radius: 2px;
+    accent-color: var(--accent-orange);
+}
+
+

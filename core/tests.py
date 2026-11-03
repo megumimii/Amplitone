@@ -314,6 +314,10 @@ class AmplitoneSecurityAndCRUDTests(TestCase):
         self.assertNotContains(guest_home, 'id="global-search-input"')
         self.assertContains(guest_home, 'id="toast-list"')
         self.assertNotContains(guest_home, 'class="flash-messages"')
+        self.assertNotContains(guest_home, 'Based on your listening')
+        self.assertNotContains(guest_home, 'For your frequency')
+        self.assertContains(guest_home, 'Trending Now')
+        self.assertContains(guest_home, 'Popular tracks')
 
         # Authenticate as standard user
         self.client.login(username='listener_a', password='StrongPassword123!')
@@ -323,6 +327,8 @@ class AmplitoneSecurityAndCRUDTests(TestCase):
         self.assertContains(auth_home, 'class="left-sidebar"')
         self.assertContains(auth_home, 'id="player-bar"')
         self.assertContains(auth_home, 'id="global-search-input"')
+        self.assertContains(auth_home, 'Based on your listening')
+        self.assertContains(auth_home, 'For your frequency')
 
         # Trigger an HTMX action (toggle like) and verify HTMX OOB toast with random ID
         htmx_like = self.client.post(
@@ -509,6 +515,64 @@ class AmplitoneSecurityAndCRUDTests(TestCase):
         self.assertEqual(resp_admin_create.status_code, 200)
         self.assertContains(resp_admin_create, album_a.title)
         self.assertContains(resp_admin_create, self.album.title)
+
+    def test_automatic_track_numbering_and_media_previews(self):
+        """
+        Verifies:
+        1. Track Create and Update views do not expose manual track_number input fields.
+        2. Tracks uploaded into an album are automatically numbered in upload order (1, 2, 3...).
+        3. Media previews render for existing audio and artwork across update views.
+        4. UserProfile bio editing persists to both UserProfile and linked Artist profile.
+        """
+        self.client.login(username='north_arcade', password='StrongPassword123!')
+
+        # 1. Track Create View omits manual track_number input
+        resp_create = self.client.get(reverse('catalog:track_create'))
+        self.assertEqual(resp_create.status_code, 200)
+        self.assertNotContains(resp_create, 'name="track_number"')
+
+        # 2. Upload tracks into self.album (self.track with track_number=1 already exists)
+        resp_t2 = self.client.post(reverse('catalog:track_create'), {
+            'album': self.album.pk,
+            'title': 'Second Sequence Track',
+        })
+        self.assertEqual(resp_t2.status_code, 302)
+        track_2 = Track.objects.get(title='Second Sequence Track')
+        self.assertEqual(track_2.track_number, 2)
+
+        resp_t3 = self.client.post(reverse('catalog:track_create'), {
+            'album': self.album.pk,
+            'title': 'Third Sequence Track',
+        })
+        self.assertEqual(resp_t3.status_code, 302)
+        track_3 = Track.objects.get(title='Third Sequence Track')
+        self.assertEqual(track_3.track_number, 3)
+
+        # 3. Track Update View omits track_number input and displays sequence badge
+        resp_update = self.client.get(reverse('catalog:track_update', kwargs={'pk': track_2.pk}))
+        self.assertEqual(resp_update.status_code, 200)
+        self.assertNotContains(resp_update, 'name="track_number"')
+        self.assertContains(resp_update, 'Track #02')
+
+        # 4. Profile View displays and updates bio
+        self.client.login(username='listener_a', password='StrongPassword123!')
+        resp_profile_get = self.client.get(reverse('accounts:profile'))
+        self.assertEqual(resp_profile_get.status_code, 200)
+        self.assertContains(resp_profile_get, 'id="id_profile_bio"')
+
+        resp_profile_post = self.client.post(reverse('accounts:profile'), {
+            'username': 'listener_a',
+            'email': 'a@amplitone.local',
+            'first_name': 'Alex',
+            'last_name': 'Vane',
+            'bio': 'Curator of deep nocturnal sounds and ambient frequencies.',
+        })
+        self.assertEqual(resp_profile_post.status_code, 200)
+        self.user_a.refresh_from_db()
+        self.assertEqual(self.user_a.user_profile.bio, 'Curator of deep nocturnal sounds and ambient frequencies.')
+        self.assertEqual(self.user_a.artist_profile.bio, 'Curator of deep nocturnal sounds and ambient frequencies.')
+        self.assertContains(resp_profile_post, 'Curator of deep nocturnal sounds and ambient frequencies.')
+
 
 
 

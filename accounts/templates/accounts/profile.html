@@ -29,13 +29,20 @@
             <span><strong>{{ sidebar_liked_count }}</strong> Liked Songs</span>
         </div>
 
+        {% if user.user_profile.bio or user.artist_profile.bio %}
+        <div style="margin-top: 1.25rem; padding: 0.875rem; background: var(--bg-surface); border: var(--hairline) solid var(--border-subtle);">
+            <span class="kicker-label" style="margin-bottom: 0.35rem; display: block;">Biography</span>
+            <p style="color: var(--text-secondary); font-size: 0.875rem; line-height: 1.5; margin: 0; white-space: pre-wrap;">{{ user.user_profile.bio|default:user.artist_profile.bio }}</p>
+        </div>
+        {% endif %}
+
         {% if user.is_staff or user.is_superuser %}
         <div class="detail-toolbar">
             <a href="{% url 'artists:manage' %}"
                hx-get="{% url 'artists:manage' %}"
                hx-target="#main-content"
                hx-push-url="true"
-               class="btn-primary">Admin Artist CRUD &rarr;</a>
+               class="btn-primary">Manage Artists &rarr;</a>
         </div>
         {% endif %}
     </div>
@@ -65,6 +72,25 @@
                 {% if field.help_text %}
                 <span class="form-help">{{ field.help_text }}</span>
                 {% endif %}
+
+                {% if field.name == 'profile_picture' %}
+                <div class="media-preview-container {% if not user_avatar_url %}is-hidden{% endif %}"
+                     style="margin-top: 0.75rem; padding: 0.875rem; background: var(--bg-surface, #141414); border: 1px solid var(--border-subtle, rgba(255,255,255,0.1)); display: {% if user_avatar_url %}flex{% else %}none{% endif %}; flex-direction: column; gap: 0.625rem; border-radius: 4px; box-sizing: border-box; width: 100%;"
+                     {% if user_avatar_url %}data-original-url="{{ user_avatar_url }}" data-original-filename="{{ user.username }} profile photo"{% endif %}>
+                    <div class="media-preview-header" style="display: flex; align-items: center; justify-content: space-between; gap: 0.5rem;">
+                        <span class="media-preview-badge" style="font-size: 0.625rem; font-family: var(--font-mono, monospace); text-transform: uppercase; letter-spacing: 0.1em; color: var(--accent-orange, #e06535); background: rgba(224, 101, 53, 0.12); border: 1px solid rgba(224, 101, 53, 0.28); padding: 0.2rem 0.5rem; border-radius: 2px;">
+                            {% if user_avatar_url %}Current Avatar{% else %}Avatar Preview{% endif %}
+                        </span>
+                        <span class="media-preview-filename" style="font-size: 0.6875rem; color: var(--text-muted, #888); font-family: var(--font-mono, monospace); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 240px;">
+                            {% if user_avatar_url %}Current photo{% endif %}
+                        </span>
+                    </div>
+                    <div class="media-preview-image-wrap" style="width: 140px; height: 140px; max-width: 100%; aspect-ratio: 1 / 1; background: var(--bg-elevated, #1a1a1a); border: 1px solid var(--border-hairline, rgba(255,255,255,0.12)); overflow: hidden; position: relative; border-radius: 2px;">
+                        <img src="{% if user_avatar_url %}{{ user_avatar_url }}{% endif %}" alt="Avatar preview" style="width: 100%; height: 100%; max-width: 140px; max-height: 140px; object-fit: cover; display: block;">
+                    </div>
+                </div>
+                {% endif %}
+
                 {% if field.errors %}
                 <ul class="form-errors">
                     {% for error in field.errors %}<li>{{ error }}</li>{% endfor %}
